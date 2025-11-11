@@ -1157,3 +1157,160 @@ body {
     font-size: 1rem;
   }
 }
+
+/* Google Calendar Integration Styles */
+.google-calendar-button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: white;
+  border: 2px solid #e8e8ed;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.google-calendar-button:hover {
+  background: #f5f5f7;
+  border-color: #d1d1d6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.google-calendar-button.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dark-mode .google-calendar-button {
+  background: #3a3a3c;
+  border-color: #48484a;
+  color: #f5f5f7;
+}
+
+.dark-mode .google-calendar-button:hover {
+  background: #48484a;
+  border-color: #636366;
+}
+
+.google-calendar-connected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #e8f5e9;
+  border: 2px solid #4caf50;
+  border-radius: 12px;
+  transition: all 0.2s;
+}
+
+.dark-mode .google-calendar-connected {
+  background: rgba(76, 175, 80, 0.15);
+  border-color: #4caf50;
+}
+
+.calendar-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.calendar-icon {
+  font-size: 1.2rem;
+}
+
+.calendar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.calendar-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #2e7d32;
+}
+
+.dark-mode .calendar-label {
+  color: #4caf50;
+}
+
+.calendar-email {
+  font-size: 0.75rem;
+  color: #558b2f;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dark-mode .calendar-email {
+  color: #81c784;
+}
+
+.disconnect-button {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid #d32f2f;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #d32f2f;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.disconnect-button:hover {
+  background: #d32f2f;
+  color: white;
+}
+
+.dark-mode .disconnect-button {
+  border-color: #f44336;
+  color: #f44336;
+}
+
+.dark-mode .disconnect-button:hover {
+  background: #f44336;
+  color: white;
+}
+
+/* Responsive Calendar Button */
+@media (max-width: 768px) {
+  .google-calendar-button,
+  .google-calendar-connected {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .calendar-email {
+    max-width: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .google-calendar-button {
+    font-size: 0.85rem;
+    padding: 8px 14px;
+  }
+
+  .calendar-label {
+    font-size: 0.8rem;
+  }
+
+  .calendar-email {
+    max-width: 100px;
+    font-size: 0.7rem;
+  }
+
+  .disconnect-button {
+    font-size: 0.8rem;
+    padding: 5px 10px;
+  }
+}
