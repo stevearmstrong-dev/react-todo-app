@@ -5,6 +5,8 @@ import ToDo from './components/ToDo';
 import Dashboard from './components/Dashboard';
 import Onboarding from './components/Onboarding';
 import Greeting from './components/Greeting';
+import GoogleCalendarButton from './components/GoogleCalendarButton';
+import googleCalendarService from './services/googleCalendar';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -15,6 +17,7 @@ function App() {
   const [notificationPermission, setNotificationPermission] = useState('default');
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [userName, setUserName] = useState('');
+  const [isCalendarConnected, setIsCalendarConnected] = useState(false);
   const notifiedTasksRef = useRef(new Set());
 
   // Request notification permission
@@ -111,7 +114,7 @@ function App() {
     }
   };
 
-  const addTask = (taskData) => {
+  const addTask = async (taskData) => {
     const newTask = {
       id: Date.now(),
       text: taskData.text,
@@ -121,7 +124,19 @@ function App() {
       dueTime: taskData.dueTime || '',
       category: taskData.category || '',
       reminderMinutes: taskData.reminderMinutes || null,
+      calendarEventId: null,
     };
+
+    // Sync to Google Calendar if connected and task has a due date
+    if (isCalendarConnected && newTask.dueDate) {
+      try {
+        const event = await googleCalendarService.createEvent(newTask);
+        newTask.calendarEventId = event.id;
+      } catch (error) {
+        console.error('Failed to sync task to calendar:', error);
+      }
+    }
+
     setTasks([newTask, ...tasks]);
   };
 
@@ -133,11 +148,36 @@ function App() {
     );
   };
 
-  const deleteTask = (id) => {
+  const deleteTask = async (id) => {
+    const task = tasks.find((t) => t.id === id);
+
+    // Delete from Google Calendar if synced
+    if (isCalendarConnected && task?.calendarEventId) {
+      try {
+        await googleCalendarService.deleteEvent(task.calendarEventId);
+      } catch (error) {
+        console.error('Failed to delete event from calendar:', error);
+      }
+    }
+
     setTasks(tasks.filter((task) => task.id !== id));
   };
 
-  const editTask = (id, updatedData) => {
+  const editTask = async (id, updatedData) => {
+    const task = tasks.find((t) => t.id === id);
+
+    // Update in Google Calendar if synced
+    if (isCalendarConnected && task?.calendarEventId && updatedData.dueDate) {
+      try {
+        await googleCalendarService.updateEvent(task.calendarEventId, {
+          ...task,
+          ...updatedData,
+        });
+      } catch (error) {
+        console.error('Failed to update event in calendar:', error);
+      }
+    }
+
     setTasks(
       tasks.map((task) =>
         task.id === id ? { ...task, ...updatedData } : task
@@ -151,6 +191,10 @@ function App() {
 
   const handleOnboardingComplete = () => {
     setShowOnboarding(false);
+  };
+
+  const handleCalendarSignInChange = (signedIn) => {
+    setIsCalendarConnected(signedIn);
   };
 
   const getFilteredTasks = () => {
@@ -194,6 +238,7 @@ function App() {
             <h1 className="todo-title">ToDo App</h1>
           </div>
           <div className="header-controls">
+            <GoogleCalendarButton onSignInChange={handleCalendarSignInChange} />
             <button
               className="dark-mode-toggle"
               onClick={() => setDarkMode(!darkMode)}
