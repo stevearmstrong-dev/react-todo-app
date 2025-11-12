@@ -124,7 +124,9 @@ function App() {
         const taskKey = `${task.id}-${task.reminderMinutes}`;
         if (notifiedTasksRef.current.has(taskKey)) return;
 
-        const dueDateTime = new Date(task.dueDate);
+        // Parse date string in local timezone to avoid UTC conversion issues
+        const [year, month, day] = task.dueDate.split('-').map(Number);
+        const dueDateTime = new Date(year, month - 1, day);
         if (task.dueTime) {
           const [hours, minutes] = task.dueTime.split(':');
           dueDateTime.setHours(parseInt(hours), parseInt(minutes), 0, 0);
