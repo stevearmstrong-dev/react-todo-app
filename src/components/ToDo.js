@@ -41,7 +41,9 @@ function ToDo({ task, toggleComplete, deleteTask, editTask }) {
     if (!task.dueDate || task.completed) return false;
 
     const now = new Date();
-    const dueDateTime = new Date(task.dueDate);
+    // Parse date string in local timezone to avoid UTC conversion issues
+    const [year, month, day] = task.dueDate.split('-').map(Number);
+    const dueDateTime = new Date(year, month - 1, day);
 
     if (task.dueTime) {
       const [hours, minutes] = task.dueTime.split(':');
@@ -53,7 +55,9 @@ function ToDo({ task, toggleComplete, deleteTask, editTask }) {
 
   const formatDate = (dateString) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
+    // Parse date string in local timezone to avoid UTC conversion issues
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };
 

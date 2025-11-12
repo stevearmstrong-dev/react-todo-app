@@ -19,7 +19,10 @@ function Dashboard({ tasks }) {
   // Overdue tasks
   const overdueTasks = tasks.filter(task => {
     if (!task.dueDate || task.completed) return false;
-    return new Date(task.dueDate) < new Date();
+    // Parse date string in local timezone to avoid UTC conversion issues
+    const [year, month, day] = task.dueDate.split('-').map(Number);
+    const dueDate = new Date(year, month - 1, day);
+    return dueDate < new Date();
   }).length;
 
   // Category breakdown
@@ -35,7 +38,9 @@ function Dashboard({ tasks }) {
   const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
   const dueThisWeek = tasks.filter(task => {
     if (!task.dueDate || task.completed) return false;
-    const dueDate = new Date(task.dueDate);
+    // Parse date string in local timezone to avoid UTC conversion issues
+    const [year, month, day] = task.dueDate.split('-').map(Number);
+    const dueDate = new Date(year, month - 1, day);
     return dueDate >= today && dueDate <= nextWeek;
   }).length;
 
