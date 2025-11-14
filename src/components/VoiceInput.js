@@ -5,6 +5,19 @@ function VoiceInput({ onTranscript, onInterimTranscript, onError }) {
   const [isSupported, setIsSupported] = useState(true);
   const recognitionRef = useRef(null);
   const finalTranscriptRef = useRef('');
+  const isListeningRef = useRef(false);
+
+  // Store callbacks in refs so they're always up-to-date
+  const onTranscriptRef = useRef(onTranscript);
+  const onInterimTranscriptRef = useRef(onInterimTranscript);
+  const onErrorRef = useRef(onError);
+
+  // Update refs when callbacks change
+  useEffect(() => {
+    onTranscriptRef.current = onTranscript;
+    onInterimTranscriptRef.current = onInterimTranscript;
+    onErrorRef.current = onError;
+  }, [onTranscript, onInterimTranscript, onError]);
 
   useEffect(() => {
     // Check if browser supports Speech Recognition
@@ -15,10 +28,10 @@ function VoiceInput({ onTranscript, onInterimTranscript, onError }) {
       return;
     }
 
-    // Initialize speech recognition
+    // Initialize speech recognition with SIMPLE mode
     const recognition = new SpeechRecognition();
-    recognition.continuous = true; // Keep listening
-    recognition.interimResults = true; // Get real-time results
+    recognition.continuous = false; // One utterance at a time (more reliable)
+    recognition.interimResults = true; // Show real-time results
     recognition.lang = 'en-US';
     recognition.maxAlternatives = 1;
 
@@ -38,29 +51,28 @@ function VoiceInput({ onTranscript, onInterimTranscript, onError }) {
 
       finalTranscriptRef.current = finalTranscript;
 
-      // Send interim results for real-time feedback
-      if (interimTranscript && onInterimTranscript) {
-        onInterimTranscript(finalTranscript + interimTranscript);
+      // Always update the input field with the latest (final + interim)
+      const combinedTranscript = finalTranscript + interimTranscript;
+
+      if (combinedTranscript && onInterimTranscriptRef.current) {
+        onInterimTranscriptRef.current(combinedTranscript);
       }
 
-      // Send final transcript when we have it
-      if (finalTranscript && onTranscript) {
-        onTranscript(finalTranscript.trim());
+      // Also call onTranscript for final results so they're saved
+      if (finalTranscript && onTranscriptRef.current) {
+        onTranscriptRef.current(finalTranscript.trim());
       }
     };
 
     recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-
       // Don't stop on 'no-speech' - user might just be pausing
       if (event.error === 'no-speech') {
-        // Just continue listening
         return;
       }
 
       setIsListening(false);
 
-      if (onError) {
+      if (onErrorRef.current) {
         let errorMessage = 'Voice recognition failed';
         if (event.error === 'aborted') {
           // Intentionally stopped, no error
@@ -70,18 +82,20 @@ function VoiceInput({ onTranscript, onInterimTranscript, onError }) {
         } else if (event.error === 'network') {
           errorMessage = 'Network error. Please check your connection.';
         }
-        onError(errorMessage);
+        onErrorRef.current(errorMessage);
       }
     };
 
     recognition.onend = () => {
-      // Only stop if user manually stopped
-      if (isListening && finalTranscriptRef.current) {
-        if (onTranscript) {
-          onTranscript(finalTranscriptRef.current.trim());
-        }
-      }
+      // In simple mode, recognition ends automatically after speech
+      // Just finalize and stop
       setIsListening(false);
+      isListeningRef.current = false;
+
+      if (finalTranscriptRef.current && onTranscriptRef.current) {
+        onTranscriptRef.current(finalTranscriptRef.current.trim());
+      }
+
       finalTranscriptRef.current = '';
     };
 
@@ -92,12 +106,12 @@ function VoiceInput({ onTranscript, onInterimTranscript, onError }) {
         recognitionRef.current.abort();
       }
     };
-  }, [onTranscript, onInterimTranscript, onError, isListening]);
+  }, []); // Empty dependencies - recognition instance doesn't need to be recreated
 
   const toggleListening = () => {
     if (!isSupported) {
-      if (onError) {
-        onError('Voice recognition is not supported in your browser. Please try Chrome or Edge.');
+      if (onErrorRef.current) {
+        onErrorRef.current('Voice recognition is not supported in your browser. Please try Chrome or Edge.');
       }
       return;
     }
@@ -105,14 +119,15 @@ function VoiceInput({ onTranscript, onInterimTranscript, onError }) {
     if (isListening) {
       recognitionRef.current.stop();
       setIsListening(false);
+      isListeningRef.current = false;
     } else {
       try {
         recognitionRef.current.start();
         setIsListening(true);
+        isListeningRef.current = true;
       } catch (error) {
-        console.error('Error starting recognition:', error);
-        if (onError) {
-          onError('Failed to start voice recognition. Please try again.');
+        if (onErrorRef.current) {
+          onErrorRef.current('Failed to start voice recognition. Please try again.');
         }
       }
     }
