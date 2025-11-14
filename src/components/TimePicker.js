@@ -2,10 +2,19 @@ import React, { useState, useRef, useEffect } from 'react';
 
 function TimePicker({ selectedTime, onSelectTime }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [hour, setHour] = useState('12');
-  const [minute, setMinute] = useState('00');
+  const [hour, setHour] = useState(12);
+  const [minute, setMinute] = useState(0);
   const [period, setPeriod] = useState('PM');
+  const [selectingMinutes, setSelectingMinutes] = useState(false);
   const timePickerRef = useRef(null);
+
+  // Quick preset times
+  const presets = [
+    { label: '9:00 AM', hour: 9, minute: 0, period: 'AM' },
+    { label: '12:00 PM', hour: 12, minute: 0, period: 'PM' },
+    { label: '3:00 PM', hour: 3, minute: 0, period: 'PM' },
+    { label: '6:00 PM', hour: 6, minute: 0, period: 'PM' },
+  ];
 
   // Initialize from selectedTime prop
   useEffect(() => {
@@ -15,8 +24,8 @@ function TimePicker({ selectedTime, onSelectTime }) {
       const displayHour = hourNum === 0 ? 12 : hourNum > 12 ? hourNum - 12 : hourNum;
       const displayPeriod = hourNum >= 12 ? 'PM' : 'AM';
 
-      setHour(String(displayHour).padStart(2, '0'));
-      setMinute(minutes);
+      setHour(displayHour);
+      setMinute(parseInt(minutes));
       setPeriod(displayPeriod);
     }
   }, [selectedTime]);
@@ -26,6 +35,7 @@ function TimePicker({ selectedTime, onSelectTime }) {
     const handleClickOutside = (event) => {
       if (timePickerRef.current && !timePickerRef.current.contains(event.target)) {
         setIsOpen(false);
+        setSelectingMinutes(false);
       }
     };
 
@@ -41,32 +51,68 @@ function TimePicker({ selectedTime, onSelectTime }) {
   const formatDisplayTime = (timeString) => {
     if (!timeString) return 'Select time';
     const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    return `${displayHour}:${minutes} ${ampm}`;
+    const hourNum = parseInt(hours);
+    const ampm = hourNum >= 12 ? 'PM' : 'AM';
+    const displayHour = hourNum % 12 || 12;
+    return `${displayHour}:${String(minutes).padStart(2, '0')} ${ampm}`;
   };
 
-  const handleApply = () => {
-    let hours = parseInt(hour);
-    if (period === 'PM' && hours !== 12) {
+  const handleHourClick = (selectedHour) => {
+    setHour(selectedHour);
+    setSelectingMinutes(true);
+  };
+
+  const handleMinuteClick = (selectedMinute) => {
+    setMinute(selectedMinute);
+  };
+
+  const handlePresetClick = (preset) => {
+    setHour(preset.hour);
+    setMinute(preset.minute);
+    setPeriod(preset.period);
+    applyTime(preset.hour, preset.minute, preset.period);
+  };
+
+  const applyTime = (h = hour, m = minute, p = period) => {
+    let hours = h;
+    if (p === 'PM' && hours !== 12) {
       hours += 12;
-    } else if (period === 'AM' && hours === 12) {
+    } else if (p === 'AM' && hours === 12) {
       hours = 0;
     }
 
-    const timeString = `${String(hours).padStart(2, '0')}:${minute}`;
+    const timeString = `${String(hours).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
     onSelectTime(timeString);
     setIsOpen(false);
+    setSelectingMinutes(false);
+  };
+
+  const handleApply = () => {
+    applyTime();
   };
 
   const handleClear = () => {
     onSelectTime('');
     setIsOpen(false);
+    setSelectingMinutes(false);
   };
 
-  const hours = Array.from({ length: 12 }, (_, i) => String(i + 1).padStart(2, '0'));
-  const minutes = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+  const handleBack = () => {
+    setSelectingMinutes(false);
+  };
+
+  // Generate clock positions for hours (12 numbers in a circle)
+  const getClockPosition = (value, total = 12) => {
+    const angle = ((value % total) * 360) / total - 90;
+    const radian = (angle * Math.PI) / 180;
+    const radius = 85;
+    const x = 50 + radius * Math.cos(radian);
+    const y = 50 + radius * Math.sin(radian);
+    return { x, y };
+  };
+
+  const hours = Array.from({ length: 12 }, (_, i) => i + 1);
+  const minuteIntervals = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
   return (
     <div className="time-picker-wrapper" ref={timePickerRef}>
@@ -83,64 +129,126 @@ function TimePicker({ selectedTime, onSelectTime }) {
       {isOpen && (
         <div className="time-dropdown">
           <div className="time-picker-header">
-            <span className="time-picker-title">Select Time</span>
+            <span className="time-picker-title">
+              {selectingMinutes ? 'Select Minute' : 'Select Hour'}
+            </span>
+            {selectingMinutes && (
+              <button
+                type="button"
+                className="time-back-btn"
+                onClick={handleBack}
+              >
+                ← Back
+              </button>
+            )}
           </div>
 
-          <div className="time-selectors">
-            <div className="time-selector-column">
-              <label className="time-selector-label">Hour</label>
-              <div className="time-scroll-container">
-                {hours.map((h) => (
+          {!selectingMinutes ? (
+            <>
+              {/* Quick Presets */}
+              <div className="time-presets">
+                {presets.map((preset, index) => (
                   <button
-                    key={h}
+                    key={index}
                     type="button"
-                    className={`time-option ${hour === h ? 'selected' : ''}`}
-                    onClick={() => setHour(h)}
+                    className="time-preset-btn"
+                    onClick={() => handlePresetClick(preset)}
                   >
-                    {h}
+                    {preset.label}
                   </button>
                 ))}
               </div>
-            </div>
 
-            <div className="time-selector-separator">:</div>
+              <div className="time-divider">
+                <span>or select time</span>
+              </div>
 
-            <div className="time-selector-column">
-              <label className="time-selector-label">Minute</label>
-              <div className="time-scroll-container">
-                {minutes.map((m) => (
+              {/* Hour Clock Face */}
+              <div className="clock-container">
+                <svg className="clock-face" viewBox="0 0 200 200">
+                  <defs>
+                    <linearGradient id="clockGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#73ABFF', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#5A8FE6', stopOpacity: 1 }} />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="90"
+                    fill="none"
+                    stroke="rgba(115, 171, 255, 0.2)"
+                    strokeWidth="2"
+                  />
+                  {hours.map((h) => {
+                    const pos = getClockPosition(h);
+                    const isSelected = hour === h;
+                    return (
+                      <g key={h}>
+                        <circle
+                          cx={pos.x}
+                          cy={pos.y}
+                          r="18"
+                          className={`clock-number ${isSelected ? 'selected' : ''}`}
+                          onClick={() => handleHourClick(h)}
+                          style={{ cursor: 'pointer' }}
+                        />
+                        <text
+                          x={pos.x}
+                          y={pos.y}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                          className={`clock-text ${isSelected ? 'selected' : ''}`}
+                          onClick={() => handleHourClick(h)}
+                          style={{ cursor: 'pointer', pointerEvents: 'none' }}
+                        >
+                          {h}
+                        </text>
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                {/* AM/PM Toggle */}
+                <div className="period-toggle-clock">
+                  <button
+                    type="button"
+                    className={`period-btn ${period === 'AM' ? 'selected' : ''}`}
+                    onClick={() => setPeriod('AM')}
+                  >
+                    AM
+                  </button>
+                  <button
+                    type="button"
+                    className={`period-btn ${period === 'PM' ? 'selected' : ''}`}
+                    onClick={() => setPeriod('PM')}
+                  >
+                    PM
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Minute Selection - Grid of buttons */}
+              <div className="minute-grid">
+                {minuteIntervals.map((m) => (
                   <button
                     key={m}
                     type="button"
-                    className={`time-option ${minute === m ? 'selected' : ''}`}
-                    onClick={() => setMinute(m)}
+                    className={`minute-btn ${minute === m ? 'selected' : ''}`}
+                    onClick={() => handleMinuteClick(m)}
                   >
-                    {m}
+                    :{String(m).padStart(2, '0')}
                   </button>
                 ))}
               </div>
-            </div>
 
-            <div className="time-selector-column period-column">
-              <label className="time-selector-label">Period</label>
-              <div className="period-toggle">
-                <button
-                  type="button"
-                  className={`period-option ${period === 'AM' ? 'selected' : ''}`}
-                  onClick={() => setPeriod('AM')}
-                >
-                  AM
-                </button>
-                <button
-                  type="button"
-                  className={`period-option ${period === 'PM' ? 'selected' : ''}`}
-                  onClick={() => setPeriod('PM')}
-                >
-                  PM
-                </button>
+              <div className="time-current-selection">
+                Selected: {hour}:{String(minute).padStart(2, '0')} {period}
               </div>
-            </div>
-          </div>
+            </>
+          )}
 
           <div className="time-picker-actions">
             <button
@@ -154,6 +262,7 @@ function TimePicker({ selectedTime, onSelectTime }) {
               type="button"
               className="time-apply-btn"
               onClick={handleApply}
+              disabled={!selectingMinutes}
             >
               Apply
             </button>
