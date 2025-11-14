@@ -12,8 +12,8 @@ function Sidebar({ activeView, onViewChange, userName, onSignOut, darkMode, onTo
     <div className="sidebar">
       <div className="sidebar-header">
         <h2 className="sidebar-logo">
-          <span className="logo-icon">✓</span>
-          ToDo
+          <span className="logo-icon">◯</span>
+          Zentask
         </h2>
       </div>
 
