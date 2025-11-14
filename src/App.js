@@ -10,6 +10,7 @@ import SignIn from './components/Auth/SignIn';
 import SignUp from './components/Auth/SignUp';
 import PasswordReset from './components/Auth/PasswordReset';
 import QuickAddTasks from './components/QuickAddTasks';
+import PomodoroTimer from './components/PomodoroTimer';
 import supabaseService from './services/supabase';
 
 function App() {
@@ -396,6 +397,8 @@ function App() {
       {showOnboarding && (
         <Onboarding onComplete={handleOnboardingComplete} addTask={addTask} />
       )}
+
+      <PomodoroTimer />
 
       <div className="todo-container">
         <div className="header">
