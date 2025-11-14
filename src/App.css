@@ -3368,7 +3368,8 @@ body {
 }
 
 /* ============================================
-   Time Picker
+/* ============================================
+   Time Picker with Clock Face
    ============================================ */
 
 .time-picker-wrapper {
@@ -3438,7 +3439,8 @@ body {
   top: calc(100% + 8px);
   left: 0;
   width: 100%;
-  max-width: 320px;
+  min-width: 340px;
+  max-width: 400px;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(30px);
   border: 1px solid rgba(17, 23, 34, 0.1);
@@ -3469,7 +3471,9 @@ body {
 .time-picker-header {
   padding: 16px;
   border-bottom: 1px solid rgba(17, 23, 34, 0.08);
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dark-mode .time-picker-header {
@@ -3486,140 +3490,224 @@ body {
   color: #f5f5f7;
 }
 
-.time-selectors {
-  display: flex;
-  align-items: flex-start;
+.time-back-btn {
+  background: rgba(115, 171, 255, 0.1);
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #73ABFF;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.time-back-btn:hover {
+  background: rgba(115, 171, 255, 0.2);
+}
+
+/* Quick Presets */
+.time-presets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 8px;
   padding: 16px;
 }
 
-.time-selector-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.period-column {
-  flex: 0.8;
-}
-
-.time-selector-label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #86868b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: center;
-  margin-bottom: 4px;
-}
-
-.dark-mode .time-selector-label {
-  color: #98989d;
-}
-
-.time-scroll-container {
-  max-height: 180px;
-  overflow-y: auto;
-  border-radius: 10px;
-  background: rgba(17, 23, 34, 0.02);
-  padding: 4px;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(115, 171, 255, 0.3) transparent;
-}
-
-.dark-mode .time-scroll-container {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.time-scroll-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.time-scroll-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.time-scroll-container::-webkit-scrollbar-thumb {
-  background: rgba(115, 171, 255, 0.3);
-  border-radius: 3px;
-}
-
-.time-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: rgba(115, 171, 255, 0.5);
-}
-
-.time-option {
-  width: 100%;
-  padding: 10px;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #1d1d1f;
-  cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: center;
-}
-
-.dark-mode .time-option {
-  color: #f5f5f7;
-}
-
-.time-option:hover {
-  background: rgba(115, 171, 255, 0.1);
-}
-
-.time-option.selected {
-  background: linear-gradient(135deg, #73ABFF 0%, #5A8FE6 100%);
-  color: white;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(115, 171, 255, 0.3);
-}
-
-.time-selector-separator {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #73ABFF;
-  align-self: center;
-  margin-top: 28px;
-}
-
-.period-toggle {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.period-option {
+.time-preset-btn {
   padding: 12px;
-  background: rgba(17, 23, 34, 0.02);
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.05) 0%, rgba(115, 171, 255, 0.02) 100%);
   border: 1px solid rgba(115, 171, 255, 0.15);
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.9rem;
   font-weight: 600;
   color: #1d1d1f;
   cursor: pointer;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.dark-mode .period-option {
+.dark-mode .time-preset-btn {
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.08) 0%, rgba(115, 171, 255, 0.03) 100%);
+  border-color: rgba(115, 171, 255, 0.2);
+  color: #f5f5f7;
+}
+
+.time-preset-btn:hover {
+  background: linear-gradient(135deg, #73ABFF 0%, #5A8FE6 100%);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(115, 171, 255, 0.3);
+}
+
+/* Divider */
+.time-divider {
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #86868b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-top: 1px solid rgba(17, 23, 34, 0.08);
+  border-bottom: 1px solid rgba(17, 23, 34, 0.08);
+}
+
+.dark-mode .time-divider {
+  color: #98989d;
+  border-top-color: rgba(115, 171, 255, 0.1);
+  border-bottom-color: rgba(115, 171, 255, 0.1);
+}
+
+/* Clock Container */
+.clock-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.clock-face {
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+}
+
+.clock-number {
+  fill: rgba(115, 171, 255, 0.1);
+  stroke: rgba(115, 171, 255, 0.3);
+  stroke-width: 2;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark-mode .clock-number {
+  fill: rgba(115, 171, 255, 0.15);
+  stroke: rgba(115, 171, 255, 0.4);
+}
+
+.clock-number:hover {
+  fill: rgba(115, 171, 255, 0.2);
+  stroke: rgba(115, 171, 255, 0.5);
+}
+
+.clock-number.selected {
+  fill: url(#clockGradient);
+  stroke: #73ABFF;
+  stroke-width: 3;
+}
+
+.clock-text {
+  font-size: 16px;
+  font-weight: 600;
+  fill: #1d1d1f;
+  user-select: none;
+}
+
+.dark-mode .clock-text {
+  fill: #f5f5f7;
+}
+
+.clock-text.selected {
+  fill: white;
+  font-weight: 700;
+}
+
+/* Add gradient definition for selected state */
+.clock-face::before {
+  content: '';
+}
+
+/* Period Toggle for Clock */
+.period-toggle-clock {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.period-btn {
+  flex: 1;
+  padding: 12px;
+  background: rgba(17, 23, 34, 0.02);
+  border: 1px solid rgba(115, 171, 255, 0.15);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark-mode .period-btn {
   background: rgba(255, 255, 255, 0.03);
   border-color: rgba(115, 171, 255, 0.2);
   color: #f5f5f7;
 }
 
-.period-option:hover {
+.period-btn:hover {
   border-color: rgba(115, 171, 255, 0.4);
   background: rgba(115, 171, 255, 0.08);
 }
 
-.period-option.selected {
+.period-btn.selected {
   background: linear-gradient(135deg, #73ABFF 0%, #5A8FE6 100%);
   border-color: transparent;
   color: white;
   box-shadow: 0 2px 8px rgba(115, 171, 255, 0.3);
+}
+
+/* Minute Grid */
+.minute-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 16px;
+}
+
+.minute-btn {
+  padding: 14px;
+  background: rgba(115, 171, 255, 0.05);
+  border: 1px solid rgba(115, 171, 255, 0.15);
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark-mode .minute-btn {
+  background: rgba(115, 171, 255, 0.08);
+  border-color: rgba(115, 171, 255, 0.2);
+  color: #f5f5f7;
+}
+
+.minute-btn:hover {
+  background: rgba(115, 171, 255, 0.15);
+  border-color: rgba(115, 171, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.minute-btn.selected {
+  background: linear-gradient(135deg, #73ABFF 0%, #5A8FE6 100%);
+  border-color: transparent;
+  color: white;
+  box-shadow: 0 4px 12px rgba(115, 171, 255, 0.3);
+}
+
+.time-current-selection {
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #73ABFF;
+  background: rgba(115, 171, 255, 0.05);
+  border-radius: 10px;
+  margin: 0 16px 8px;
+}
+
+.dark-mode .time-current-selection {
+  background: rgba(115, 171, 255, 0.1);
 }
 
 .time-picker-actions {
@@ -3670,13 +3758,18 @@ body {
   box-shadow: 0 4px 12px rgba(115, 171, 255, 0.3);
 }
 
-.time-apply-btn:hover {
+.time-apply-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(115, 171, 255, 0.4);
 }
 
-.time-apply-btn:active {
+.time-apply-btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.time-apply-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Time Picker Form Integration */
@@ -3704,15 +3797,21 @@ body {
   }
 
   .time-dropdown {
+    min-width: 320px;
     max-width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
-  .time-selectors {
-    gap: 6px;
-    padding: 12px;
+  .time-presets {
+    grid-template-columns: 1fr;
   }
 
-  .time-scroll-container {
-    max-height: 150px;
+  .minute-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .clock-face {
+    max-width: 240px;
   }
 }
