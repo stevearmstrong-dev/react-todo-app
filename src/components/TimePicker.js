@@ -8,14 +8,6 @@ function TimePicker({ selectedTime, onSelectTime }) {
   const [selectingMinutes, setSelectingMinutes] = useState(false);
   const timePickerRef = useRef(null);
 
-  // Quick preset times
-  const presets = [
-    { label: '9:00 AM', hour: 9, minute: 0, period: 'AM' },
-    { label: '12:00 PM', hour: 12, minute: 0, period: 'PM' },
-    { label: '3:00 PM', hour: 3, minute: 0, period: 'PM' },
-    { label: '6:00 PM', hour: 6, minute: 0, period: 'PM' },
-  ];
-
   // Initialize from selectedTime prop
   useEffect(() => {
     if (selectedTime) {
@@ -64,13 +56,6 @@ function TimePicker({ selectedTime, onSelectTime }) {
 
   const handleMinuteClick = (selectedMinute) => {
     setMinute(selectedMinute);
-  };
-
-  const handlePresetClick = (preset) => {
-    setHour(preset.hour);
-    setMinute(preset.minute);
-    setPeriod(preset.period);
-    applyTime(preset.hour, preset.minute, preset.period);
   };
 
   const applyTime = (h = hour, m = minute, p = period) => {
@@ -147,24 +132,6 @@ function TimePicker({ selectedTime, onSelectTime }) {
 
           {!selectingMinutes ? (
             <>
-              {/* Quick Presets */}
-              <div className="time-presets">
-                {presets.map((preset, index) => (
-                  <button
-                    key={index}
-                    type="button"
-                    className="time-preset-btn"
-                    onClick={() => handlePresetClick(preset)}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="time-divider">
-                <span>or select time</span>
-              </div>
-
               {/* Hour Clock Face */}
               <div className="clock-container">
                 <svg className="clock-face" viewBox="0 0 200 200">
@@ -244,6 +211,24 @@ function TimePicker({ selectedTime, onSelectTime }) {
                     :{String(m).padStart(2, '0')}
                   </button>
                 ))}
+              </div>
+
+              {/* AM/PM Toggle for Minutes View */}
+              <div className="period-toggle-minutes">
+                <button
+                  type="button"
+                  className={`period-btn ${period === 'AM' ? 'selected' : ''}`}
+                  onClick={() => setPeriod('AM')}
+                >
+                  AM
+                </button>
+                <button
+                  type="button"
+                  className={`period-btn ${period === 'PM' ? 'selected' : ''}`}
+                  onClick={() => setPeriod('PM')}
+                >
+                  PM
+                </button>
               </div>
 
               <div className="time-current-selection">
