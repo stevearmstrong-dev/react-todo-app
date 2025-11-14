@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import CalendarPicker from './CalendarPicker';
+import CategoryPicker from './CategoryPicker';
 
 function ToDoForm({ addTask }) {
   const [input, setInput] = useState('');
@@ -61,13 +63,10 @@ function ToDoForm({ addTask }) {
           <option value="high">High Priority</option>
         </select>
 
-        <input
-          type="date"
-          className="todo-date"
-          value={dueDate}
-          onChange={(e) => setDueDate(e.target.value)}
-          min={getTodayLocalDate()}
-          placeholder="Due date"
+        <CalendarPicker
+          selectedDate={dueDate}
+          onSelectDate={setDueDate}
+          minDate={getTodayLocalDate()}
         />
 
         <input
@@ -78,12 +77,9 @@ function ToDoForm({ addTask }) {
           placeholder="Time"
         />
 
-        <input
-          type="text"
-          className="todo-category"
-          placeholder="Category (optional)"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+        <CategoryPicker
+          selectedCategory={category}
+          onSelectCategory={setCategory}
         />
 
         <select
