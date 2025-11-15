@@ -81,7 +81,24 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
 
   // Toggle Pomodoro timer
   const togglePomodoro = (): void => {
-    setShowPomodoro(!showPomodoro);
+    const newShowPomodoro = !showPomodoro;
+
+    // When switching TO Pomodoro mode from time tracking
+    if (newShowPomodoro && !showPomodoro) {
+      if (timeSpent >= 25 * 60) {
+        // Already completed a work block - start fresh Pomodoro
+        setPomodoroTime(25 * 60);
+        setPomodoroMode('work');
+      } else {
+        // Account for time already spent - complete the current block
+        const remainingTime = (25 * 60) - timeSpent;
+        setPomodoroTime(remainingTime);
+        setPomodoroMode('work');
+      }
+    }
+
+    setShowPomodoro(newShowPomodoro);
+
     if (showPomodoro && pomodoroIntervalRef.current) {
       clearInterval(pomodoroIntervalRef.current);
       pomodoroIntervalRef.current = null;
