@@ -95,8 +95,13 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
       clearInterval(pomodoroIntervalRef.current);
       pomodoroIntervalRef.current = null;
     } else {
-      // Start Pomodoro
+      // Start Pomodoro (also tracks total time spent)
       pomodoroIntervalRef.current = setInterval(() => {
+        // Increment timeSpent during work sessions
+        if (pomodoroMode === 'work') {
+          setTimeSpent(prev => prev + 1);
+        }
+
         setPomodoroTime(prev => {
           if (prev <= 1) {
             // Timer finished
@@ -142,9 +147,9 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
     // Save both time tracking and pomodoro state
     onUpdateTime(task.id, {
       timeSpent,
-      pomodoroTime,
-      pomodoroMode,
-      pomodoroActive: showPomodoro && pomodoroIntervalRef.current !== null
+      pomodoroTime: showPomodoro ? pomodoroTime : null,
+      pomodoroMode: showPomodoro ? pomodoroMode : null,
+      pomodoroActive: showPomodoro
     });
 
     onClose();
