@@ -17,6 +17,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
 
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pomodoroIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const timeSpentRef = useRef<number>(timeSpent);
 
   // Format time as HH:MM:SS
   const formatTime = (seconds: number): string => {
@@ -144,27 +145,43 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
     const handleKeyPress = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
         onClose();
-      } else if (e.key === ' ' && !showPomodoro) {
+      } else if (e.key === ' ') {
         e.preventDefault();
-        toggleTracking();
-      } else if (e.key === ' ' && showPomodoro) {
-        e.preventDefault();
-        togglePomodoroTimer();
+        if (showPomodoro) {
+          togglePomodoroTimer();
+        } else {
+          toggleTracking();
+        }
       }
     };
 
     window.addEventListener('keydown', handleKeyPress);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [onClose, showPomodoro]);
+
+  // Keep ref in sync with timeSpent
+  useEffect(() => {
+    timeSpentRef.current = timeSpent;
+  }, [timeSpent]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
-        onUpdateTime(task.id, timeSpent);
       }
       if (pomodoroIntervalRef.current) {
         clearInterval(pomodoroIntervalRef.current);
       }
+      // Save final time spent using ref
+      if (timeSpentRef.current > 0) {
+        onUpdateTime(task.id, timeSpentRef.current);
+      }
     };
-  }, [onClose, timeSpent, showPomodoro, isTracking]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Get priority color
   const getPriorityColor = (): string => {
