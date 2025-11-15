@@ -11,9 +11,9 @@ interface FocusModeProps {
 function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) {
   const [isTracking, setIsTracking] = useState<boolean>(task.isTracking || false);
   const [timeSpent, setTimeSpent] = useState<number>(task.timeSpent || 0);
-  const [showPomodoro, setShowPomodoro] = useState<boolean>(false);
-  const [pomodoroTime, setPomodoroTime] = useState<number>(25 * 60); // 25 minutes in seconds
-  const [pomodoroMode, setPomodoroMode] = useState<'work' | 'break'>('work');
+  const [showPomodoro, setShowPomodoro] = useState<boolean>(task.pomodoroActive || false);
+  const [pomodoroTime, setPomodoroTime] = useState<number>(task.pomodoroTime || 25 * 60);
+  const [pomodoroMode, setPomodoroMode] = useState<'work' | 'break'>(task.pomodoroMode || 'work');
 
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const pomodoroIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -130,14 +130,23 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
     setPomodoroTime(25 * 60);
   };
 
-  // Handle close - save time before closing
+  // Handle close - save time and pomodoro state before closing
   const handleClose = (): void => {
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
     }
-    if (timeSpent > 0) {
-      onUpdateTime(task.id, { timeSpent });
+    if (pomodoroIntervalRef.current) {
+      clearInterval(pomodoroIntervalRef.current);
     }
+
+    // Save both time tracking and pomodoro state
+    onUpdateTime(task.id, {
+      timeSpent,
+      pomodoroTime,
+      pomodoroMode,
+      pomodoroActive: showPomodoro && pomodoroIntervalRef.current !== null
+    });
+
     onClose();
   };
 

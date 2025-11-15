@@ -80,6 +80,9 @@ class SupabaseService {
             time_spent: task.timeSpent || 0,
             is_tracking: task.isTracking || false,
             tracking_start_time: task.trackingStartTime || null,
+            pomodoro_time: task.pomodoroTime || null,
+            pomodoro_mode: task.pomodoroMode || null,
+            pomodoro_active: task.pomodoroActive || false,
           },
         ])
         .select()
@@ -117,6 +120,9 @@ class SupabaseService {
           time_spent: updates.timeSpent,
           is_tracking: updates.isTracking,
           tracking_start_time: updates.trackingStartTime,
+          pomodoro_time: updates.pomodoroTime,
+          pomodoro_mode: updates.pomodoroMode,
+          pomodoro_active: updates.pomodoroActive,
         })
         .eq('id', taskId)
         .eq('user_email', userEmail)
@@ -185,6 +191,9 @@ class SupabaseService {
       timeSpent: dbTask.time_spent || 0,
       isTracking: dbTask.is_tracking || false,
       trackingStartTime: dbTask.tracking_start_time || undefined,
+      pomodoroTime: dbTask.pomodoro_time || undefined,
+      pomodoroMode: (dbTask.pomodoro_mode as 'work' | 'break') || undefined,
+      pomodoroActive: dbTask.pomodoro_active || false,
     };
   }
 
@@ -205,6 +214,9 @@ class SupabaseService {
       time_spent: task.timeSpent || 0,
       is_tracking: task.isTracking || false,
       tracking_start_time: task.trackingStartTime || null,
+      pomodoro_time: task.pomodoroTime || null,
+      pomodoro_mode: task.pomodoroMode || null,
+      pomodoro_active: task.pomodoroActive || false,
     };
   }
 }
