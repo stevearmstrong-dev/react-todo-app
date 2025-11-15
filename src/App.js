@@ -11,6 +11,7 @@ import SignUp from './components/Auth/SignUp';
 import PasswordReset from './components/Auth/PasswordReset';
 import QuickAddTasks from './components/QuickAddTasks';
 import PomodoroTimer from './components/PomodoroTimer';
+import EisenhowerMatrix from './components/EisenhowerMatrix';
 import Sidebar from './components/Sidebar';
 import supabaseService from './services/supabase';
 
@@ -541,7 +542,7 @@ function App() {
         />
 
         <div className="main-content">
-          {view !== 'pomodoro' && <Greeting userName={userName} />}
+          {view !== 'pomodoro' && view !== 'matrix' && <Greeting userName={userName} />}
 
         {view === 'today' ? (
           <>
@@ -630,6 +631,14 @@ function App() {
           </>
         ) : view === 'pomodoro' ? (
           <PomodoroTimer />
+        ) : view === 'matrix' ? (
+          <EisenhowerMatrix
+            tasks={tasks}
+            toggleComplete={toggleComplete}
+            deleteTask={deleteTask}
+            editTask={editTask}
+            onUpdateTime={updateTaskTime}
+          />
         ) : (
           <Dashboard tasks={tasks} />
         )}

@@ -5,6 +5,7 @@ function Sidebar({ activeView, onViewChange, userName, onSignOut, darkMode, onTo
     { id: 'today', icon: '📅', label: 'Today' },
     { id: 'tasks', icon: '✓', label: 'All Tasks' },
     { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+    { id: 'matrix', icon: '⊞', label: 'Matrix' },
     { id: 'pomodoro', icon: '🍅', label: 'Pomodoro' },
   ];
 

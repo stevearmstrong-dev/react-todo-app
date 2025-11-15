@@ -13,6 +13,7 @@ A modern, full-stack productivity application built with React and Supabase. Zen
 ### Core Productivity
 
 - **Today View**: Focus on today's tasks with progress tracking and completion metrics
+- **Eisenhower Matrix**: Organize tasks by urgency and importance into four actionable quadrants
 - **Pomodoro Timer**: Built-in focus timer with work/break cycles, session tracking, and customizable durations
 - **Time Tracking**: Track time spent on each task with start/stop/reset controls and analytics
 - **Voice Input**: Add tasks hands-free using voice recognition (Chrome/Edge)
@@ -188,6 +189,7 @@ zentask/
 │   │   ├── CalendarPicker.js      # Date selection component
 │   │   ├── CategoryPicker.js      # Category management
 │   │   ├── Dashboard.js           # Analytics dashboard
+│   │   ├── EisenhowerMatrix.js    # Eisenhower Matrix view
 │   │   ├── Greeting.js            # Personalized greeting
 │   │   ├── Onboarding.js          # New user tutorial
 │   │   ├── PomodoroTimer.js       # Focus timer with sessions
@@ -255,6 +257,20 @@ Stay focused on what matters with:
 - **Overdue warnings**: Clear indicators for missed deadlines
 - **Completed tasks**: See your daily accomplishments
 
+### Eisenhower Matrix
+
+Prioritize effectively using the Eisenhower Matrix methodology:
+- **Four Quadrants**: Tasks automatically organized by urgency and importance
+  - **Do First** (🔥): High priority + Due today/overdue - Critical tasks requiring immediate attention
+  - **Schedule** (📅): High priority + Due later - Important tasks to plan and schedule
+  - **Delegate** (⚡): Medium/Low priority + Due today/overdue - Urgent but less important tasks
+  - **Eliminate** (🗑️): Medium/Low priority + Due later - Tasks to reconsider or remove
+- **Visual Organization**: Color-coded quadrants with task counts
+- **Interactive**: Full task management within each quadrant (complete, edit, delete, time tracking)
+- **Legend**: Clear explanation of categorization rules
+- **Responsive Design**: 2x2 grid on desktop, stacked on mobile
+- **Unified Theme**: Beautiful glassmorphic design with blue gradients
+
 ### Dashboard Analytics
 
 Gain insights into your productivity:
@@ -267,7 +283,7 @@ Gain insights into your productivity:
 ### Sidebar Navigation
 
 Professional navigation with:
-- **View switching**: Quick access to Today, All Tasks, Dashboard, Pomodoro
+- **View switching**: Quick access to Today, All Tasks, Dashboard, Matrix, Pomodoro
 - **User profile**: Avatar and username display
 - **Quick controls**: Dark mode toggle and sign out button
 - **Active state**: Clear visual indication of current view
@@ -418,6 +434,7 @@ Planned features for future releases:
 
 - [x] **Recurring Tasks**: Daily, weekly, biweekly, monthly, yearly auto-regeneration ✓
 - [x] **Time Tracking**: Track actual time spent on tasks ✓
+- [x] **Eisenhower Matrix**: Urgent/Important quadrant view ✓
 - [ ] **Subtasks**: Break tasks into smaller checklist items
 - [ ] **Kanban Board**: Drag-and-drop task workflow
 - [ ] **Habit Tracker**: Daily habits with streak counters
@@ -426,7 +443,6 @@ Planned features for future releases:
 - [ ] **Keyboard Shortcuts**: Power user shortcuts
 - [ ] **Focus Mode**: Distraction-free single-task view
 - [ ] **Task Templates**: Pre-defined task templates
-- [ ] **Eisenhower Matrix**: Urgent/Important quadrant view
 - [ ] **Export/Import**: Backup and migrate tasks
 
 ## Contributing
