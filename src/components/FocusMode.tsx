@@ -5,7 +5,7 @@ interface FocusModeProps {
   task: Task;
   onClose: () => void;
   onComplete: (id: number) => void;
-  onUpdateTime: (id: number, timeSpent: number) => void;
+  onUpdateTime: (id: number, timeData: Partial<Task>) => void;
 }
 
 function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) {
@@ -54,7 +54,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
         clearInterval(timerIntervalRef.current);
         timerIntervalRef.current = null;
       }
-      onUpdateTime(task.id, timeSpent);
+      onUpdateTime(task.id, { timeSpent });
       setIsTracking(false);
     } else {
       // Start tracking
@@ -76,7 +76,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
     }
     setTimeSpent(0);
     setIsTracking(false);
-    onUpdateTime(task.id, 0);
+    onUpdateTime(task.id, { timeSpent: 0 });
   };
 
   // Toggle Pomodoro timer
@@ -136,7 +136,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
       clearInterval(timerIntervalRef.current);
     }
     if (timeSpent > 0) {
-      onUpdateTime(task.id, timeSpent);
+      onUpdateTime(task.id, { timeSpent });
     }
     onClose();
   };
@@ -145,7 +145,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
   const handleComplete = (): void => {
     if (timerIntervalRef.current) {
       clearInterval(timerIntervalRef.current);
-      onUpdateTime(task.id, timeSpent);
+      onUpdateTime(task.id, { timeSpent });
     }
     onComplete(task.id);
     onClose();
@@ -188,7 +188,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
       }
       // Save final time spent using ref
       if (timeSpentRef.current > 0) {
-        onUpdateTime(task.id, timeSpentRef.current);
+        onUpdateTime(task.id, { timeSpent: timeSpentRef.current });
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
