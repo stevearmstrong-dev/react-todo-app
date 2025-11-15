@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
+import { Task, TimeData } from '../types';
 
-function TimeTracker({ task, onUpdateTime }) {
-  const [displayTime, setDisplayTime] = useState(task.timeSpent || 0);
+interface TimeTrackerProps {
+  task: Task;
+  onUpdateTime: (id: number, timeData: TimeData) => void;
+}
+
+function TimeTracker({ task, onUpdateTime }: TimeTrackerProps) {
+  const [displayTime, setDisplayTime] = useState<number>(task.timeSpent || 0);
 
   // Update display time every second when tracking
   useEffect(() => {
     if (task.isTracking && task.trackingStartTime) {
       const interval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - task.trackingStartTime) / 1000);
+        const elapsed = Math.floor((Date.now() - task.trackingStartTime!) / 1000);
         setDisplayTime((task.timeSpent || 0) + elapsed);
       }, 1000);
 
@@ -17,7 +23,7 @@ function TimeTracker({ task, onUpdateTime }) {
     }
   }, [task.isTracking, task.trackingStartTime, task.timeSpent]);
 
-  const formatTime = (seconds) => {
+  const formatTime = (seconds: number): string => {
     if (seconds < 60) {
       return `${seconds}s`;
     } else if (seconds < 3600) {
@@ -31,10 +37,10 @@ function TimeTracker({ task, onUpdateTime }) {
     }
   };
 
-  const handleStartStop = () => {
+  const handleStartStop = (): void => {
     if (task.isTracking) {
       // Stop tracking
-      const elapsed = Math.floor((Date.now() - task.trackingStartTime) / 1000);
+      const elapsed = Math.floor((Date.now() - (task.trackingStartTime || 0)) / 1000);
       const newTimeSpent = (task.timeSpent || 0) + elapsed;
       onUpdateTime(task.id, {
         timeSpent: newTimeSpent,
@@ -51,7 +57,7 @@ function TimeTracker({ task, onUpdateTime }) {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = (): void => {
     onUpdateTime(task.id, {
       timeSpent: 0,
       isTracking: false,

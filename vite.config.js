@@ -9,15 +9,8 @@ export default defineConfig({
     outDir: 'build',
   },
   esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
-    exclude: [],
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      loader: {
-        '.js': 'jsx',
-      },
-    },
+    include: /\.([jt]sx?|ts)$/,
+    jsxFactory: 'React.createElement',
+    jsxFragment: 'React.Fragment',
   },
 })
