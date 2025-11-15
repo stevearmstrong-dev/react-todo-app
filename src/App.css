@@ -761,9 +761,10 @@ body {
 
 .todo-actions {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   align-items: flex-start;
   flex-shrink: 0;
+  flex-wrap: wrap;
   margin-left: 12px;
 }
 
@@ -771,7 +772,7 @@ body {
 .btn-delete,
 .btn-save,
 .btn-cancel {
-  padding: 8px 16px;
+  padding: 8px 14px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -5965,12 +5966,12 @@ body {
 
 /* Focus button in task item */
 .btn-focus {
-  padding: 8px 16px;
+  padding: 8px 12px;
   border-radius: 8px;
   border: none;
   background: linear-gradient(135deg, #73abff 0%, #5d95e8 100%);
   color: white;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
