@@ -29,8 +29,10 @@ function RecurrencePicker({ selectedRecurrence, onSelectRecurrence }) {
         onClick={() => setIsOpen(!isOpen)}
         title="Set recurrence"
       >
-        <span className="picker-icon">{getCurrentOption()?.icon}</span>
-        <span className="picker-label">{getCurrentOption()?.label}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span className="picker-icon">{getCurrentOption()?.icon}</span>
+          <span className="picker-label">{getCurrentOption()?.label}</span>
+        </div>
         <span className="picker-arrow">{isOpen ? '▲' : '▼'}</span>
       </button>
 
