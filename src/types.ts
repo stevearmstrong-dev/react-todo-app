@@ -20,6 +20,9 @@ export interface Task {
   timeSpent?: number;
   isTracking?: boolean;
   trackingStartTime?: number;
+  pomodoroTime?: number;
+  pomodoroMode?: 'work' | 'break';
+  pomodoroActive?: boolean;
 }
 
 export interface TimeData {
@@ -57,5 +60,8 @@ export interface DbTask {
   time_spent: number;
   is_tracking: boolean;
   tracking_start_time: number | null;
+  pomodoro_time: number | null;
+  pomodoro_mode: string | null;
+  pomodoro_active: boolean;
   created_at?: string;
 }
