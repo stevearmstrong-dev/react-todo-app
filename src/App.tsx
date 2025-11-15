@@ -15,6 +15,7 @@ import PomodoroTimer from './components/PomodoroTimer';
 import EisenhowerMatrix from './components/EisenhowerMatrix';
 import Sidebar from './components/Sidebar';
 import { ViewType } from './components/Sidebar';
+import FocusMode from './components/FocusMode';
 import supabaseService from './services/supabase';
 import { User } from '@supabase/supabase-js';
 
@@ -35,6 +36,7 @@ function App() {
   const [userName, setUserName] = useState<string>('');
   const [userEmail, setUserEmail] = useState<string>('');
   const [isGuestMode, setIsGuestMode] = useState<boolean>(false);
+  const [focusedTask, setFocusedTask] = useState<Task | null>(null);
   const notifiedTasksRef = useRef<Set<string>>(new Set());
 
   // Request notification permission
@@ -533,6 +535,15 @@ function App() {
   // Main app (authenticated users only)
   return (
     <div className={`todo-app ${darkMode ? 'dark-mode' : ''}`}>
+      {focusedTask && (
+        <FocusMode
+          task={focusedTask}
+          onClose={() => setFocusedTask(null)}
+          onComplete={toggleComplete}
+          onUpdateTime={updateTaskTime}
+        />
+      )}
+
       {showOnboarding && (
         <Onboarding onComplete={handleOnboardingComplete} addTask={addTask} />
       )}
@@ -560,6 +571,7 @@ function App() {
               deleteTask={deleteTask}
               editTask={editTask}
               onUpdateTime={updateTaskTime}
+              onFocus={setFocusedTask}
             />
           </>
         ) : view === 'tasks' ? (
@@ -617,6 +629,7 @@ function App() {
                     deleteTask={deleteTask}
                     editTask={editTask}
                     onUpdateTime={updateTaskTime}
+                    onFocus={setFocusedTask}
                   />
                 ))
               )}
@@ -644,6 +657,7 @@ function App() {
             deleteTask={deleteTask}
             editTask={editTask}
             onUpdateTime={updateTaskTime}
+            onFocus={setFocusedTask}
           />
         ) : (
           <Dashboard tasks={tasks} />
