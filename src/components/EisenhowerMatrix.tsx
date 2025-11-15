@@ -8,9 +8,10 @@ interface EisenhowerMatrixProps {
   deleteTask: (id: number) => void;
   editTask: (id: number, updates: Partial<Task>) => void;
   onUpdateTime: (id: number, timeSpent: number) => void;
+  onFocus?: (task: Task) => void;
 }
 
-function EisenhowerMatrix({ tasks, toggleComplete, deleteTask, editTask, onUpdateTime }: EisenhowerMatrixProps) {
+function EisenhowerMatrix({ tasks, toggleComplete, deleteTask, editTask, onUpdateTime, onFocus }: EisenhowerMatrixProps) {
   // Helper function to check if task is due today or overdue
   const isUrgent = (task: Task): boolean => {
     if (!task.dueDate || task.completed) return false;
@@ -59,6 +60,7 @@ function EisenhowerMatrix({ tasks, toggleComplete, deleteTask, editTask, onUpdat
               deleteTask={deleteTask}
               editTask={editTask}
               onUpdateTime={onUpdateTime}
+              onFocus={onFocus}
             />
           ))
         )}

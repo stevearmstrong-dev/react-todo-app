@@ -13,9 +13,10 @@ interface ToDoProps {
   deleteTask: (id: number) => void;
   editTask: (id: number, updates: Partial<Task>) => void;
   onUpdateTime: (id: number, timeSpent: number) => void;
+  onFocus?: (task: Task) => void;
 }
 
-function ToDo({ task, toggleComplete, deleteTask, editTask, onUpdateTime }: ToDoProps) {
+function ToDo({ task, toggleComplete, deleteTask, editTask, onUpdateTime, onFocus }: ToDoProps) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editValue, setEditValue] = useState<string>(task.text);
   const [editPriority, setEditPriority] = useState<Priority>(task.priority || 'medium');
@@ -185,6 +186,15 @@ function ToDo({ task, toggleComplete, deleteTask, editTask, onUpdateTime }: ToDo
           </div>
           <TimeTracker task={task} onUpdateTime={onUpdateTime} />
           <div className="todo-actions">
+            {onFocus && !task.completed && (
+              <button
+                className="btn-focus"
+                onClick={() => onFocus(task)}
+                title="Enter Focus Mode"
+              >
+                🎯 Focus
+              </button>
+            )}
             <button
               className="btn-edit"
               onClick={() => setIsEditing(true)}

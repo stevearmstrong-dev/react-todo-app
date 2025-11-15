@@ -8,9 +8,10 @@ interface TodayViewProps {
   deleteTask: (id: number) => void;
   editTask: (id: number, updates: Partial<Task>) => void;
   onUpdateTime: (id: number, timeSpent: number) => void;
+  onFocus?: (task: Task) => void;
 }
 
-function TodayView({ tasks, toggleComplete, deleteTask, editTask, onUpdateTime }: TodayViewProps) {
+function TodayView({ tasks, toggleComplete, deleteTask, editTask, onUpdateTime, onFocus }: TodayViewProps) {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -119,6 +120,7 @@ function TodayView({ tasks, toggleComplete, deleteTask, editTask, onUpdateTime }
                 deleteTask={deleteTask}
                 editTask={editTask}
                 onUpdateTime={onUpdateTime}
+                onFocus={onFocus}
               />
             ))}
           </div>
@@ -158,6 +160,7 @@ function TodayView({ tasks, toggleComplete, deleteTask, editTask, onUpdateTime }
                 deleteTask={deleteTask}
                 editTask={editTask}
                 onUpdateTime={onUpdateTime}
+                onFocus={onFocus}
               />
             ))}
           </div>
@@ -183,6 +186,7 @@ function TodayView({ tasks, toggleComplete, deleteTask, editTask, onUpdateTime }
                 deleteTask={deleteTask}
                 editTask={editTask}
                 onUpdateTime={onUpdateTime}
+                onFocus={onFocus}
               />
             ))}
           </div>
