@@ -484,7 +484,7 @@ function App() {
         />
 
         <div className="main-content">
-          {view !== 'today' && view !== 'pomodoro' && <Greeting userName={userName} />}
+          {view !== 'pomodoro' && <Greeting userName={userName} />}
 
         {view === 'today' ? (
           <>
