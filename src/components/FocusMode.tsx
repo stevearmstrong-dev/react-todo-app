@@ -130,6 +130,17 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
     setPomodoroTime(25 * 60);
   };
 
+  // Handle close - save time before closing
+  const handleClose = (): void => {
+    if (timerIntervalRef.current) {
+      clearInterval(timerIntervalRef.current);
+    }
+    if (timeSpent > 0) {
+      onUpdateTime(task.id, timeSpent);
+    }
+    onClose();
+  };
+
   // Handle complete
   const handleComplete = (): void => {
     if (timerIntervalRef.current) {
@@ -144,7 +155,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent): void => {
       if (e.key === 'Escape') {
-        onClose();
+        handleClose();
       } else if (e.key === ' ') {
         e.preventDefault();
         if (showPomodoro) {
@@ -159,7 +170,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [onClose, showPomodoro]);
+  }, [showPomodoro, timeSpent]);
 
   // Keep ref in sync with timeSpent
   useEffect(() => {
@@ -197,7 +208,7 @@ function FocusMode({ task, onClose, onComplete, onUpdateTime }: FocusModeProps) 
     <div className="focus-mode-overlay">
       <div className="focus-mode-container">
         {/* Close button */}
-        <button className="focus-close-button" onClick={onClose} title="Exit Focus Mode (ESC)">
+        <button className="focus-close-button" onClick={handleClose} title="Exit Focus Mode (ESC)">
           ×
         </button>
 
