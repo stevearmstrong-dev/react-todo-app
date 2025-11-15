@@ -72,6 +72,7 @@ class SupabaseService {
             due_time: task.dueTime,
             category: task.category,
             reminder_minutes: task.reminderMinutes,
+            recurrence: task.recurrence,
             calendar_event_id: task.calendarEventId,
           },
         ])
@@ -101,6 +102,7 @@ class SupabaseService {
           due_time: updates.dueTime,
           category: updates.category,
           reminder_minutes: updates.reminderMinutes,
+          recurrence: updates.recurrence,
           calendar_event_id: updates.calendarEventId,
         })
         .eq('id', taskId)
@@ -165,6 +167,7 @@ class SupabaseService {
       dueTime: dbTask.due_time,
       category: dbTask.category,
       reminderMinutes: dbTask.reminder_minutes,
+      recurrence: dbTask.recurrence,
       calendarEventId: dbTask.calendar_event_id,
     };
   }
@@ -181,6 +184,7 @@ class SupabaseService {
       due_time: task.dueTime,
       category: task.category,
       reminder_minutes: task.reminderMinutes,
+      recurrence: task.recurrence,
       calendar_event_id: task.calendarEventId,
     };
   }
