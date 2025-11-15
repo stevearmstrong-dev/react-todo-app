@@ -118,6 +118,8 @@ CREATE TABLE tasks (
   due_time TEXT,
   category TEXT,
   reminder_minutes INTEGER,
+  recurrence TEXT,
+  calendar_event_id TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -279,6 +281,8 @@ CREATE TABLE tasks (
   due_time TEXT,
   category TEXT,
   reminder_minutes INTEGER,
+  recurrence TEXT,
+  calendar_event_id TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -387,10 +391,10 @@ Check [caniuse.com](https://caniuse.com/) for:
 
 Planned features for future releases:
 
+- [x] **Recurring Tasks**: Daily, weekly, biweekly, monthly, yearly auto-regeneration ✓
 - [ ] **Subtasks**: Break tasks into smaller checklist items
 - [ ] **Kanban Board**: Drag-and-drop task workflow
 - [ ] **Habit Tracker**: Daily habits with streak counters
-- [ ] **Recurring Tasks**: Daily, weekly, monthly auto-regeneration
 - [ ] **Tags System**: Multiple tags per task
 - [ ] **Time Tracking**: Track actual time spent on tasks
 - [ ] **Calendar View**: Monthly/weekly calendar visualization
