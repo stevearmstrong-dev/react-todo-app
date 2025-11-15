@@ -1,0 +1,61 @@
+// Shared TypeScript type definitions for Zentask
+
+export type Priority = 'high' | 'medium' | 'low';
+
+export type Recurrence = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly' | null;
+
+export type ViewType = 'today' | 'tasks' | 'dashboard' | 'matrix' | 'pomodoro';
+
+export interface Task {
+  id: number;
+  text: string;
+  completed: boolean;
+  priority: Priority;
+  dueDate?: string;
+  dueTime?: string;
+  category?: string;
+  reminderMinutes?: number;
+  recurrence?: Recurrence;
+  calendarEventId?: string;
+  timeSpent?: number;
+  isTracking?: boolean;
+  trackingStartTime?: number;
+}
+
+export interface TimeData {
+  timeSpent: number;
+  isTracking: boolean;
+  trackingStartTime: number | null;
+}
+
+export interface PomodoroSettings {
+  workDuration: number;
+  shortBreakDuration: number;
+  longBreakDuration: number;
+}
+
+export type PomodoroMode = 'work' | 'shortBreak' | 'longBreak';
+
+export interface User {
+  email: string;
+  displayName?: string;
+}
+
+// Supabase database column names (snake_case)
+export interface DbTask {
+  id: number;
+  user_email: string;
+  text: string;
+  completed: boolean;
+  priority: string;
+  due_date: string | null;
+  due_time: string | null;
+  category: string | null;
+  reminder_minutes: number | null;
+  recurrence: string | null;
+  calendar_event_id: string | null;
+  time_spent: number;
+  is_tracking: boolean;
+  tracking_start_time: number | null;
+  created_at?: string;
+}

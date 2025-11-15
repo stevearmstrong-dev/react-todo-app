@@ -1,4 +1,5 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient, AuthChangeEvent, Session, User } from '@supabase/supabase-js';
+import { Task, DbTask } from '../types';
 
 const SUPABASE_URL = 'https://nylvcqjzczvfkjjbeoef.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55bHZjcWp6Y3p2ZmtqamJlb2VmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4ODI0NzgsImV4cCI6MjA3ODQ1ODQ3OH0.1UAbbef2icdl8SNsvDNdQUV_49J_BQLB0vfpOcK6r-8';
@@ -8,7 +9,7 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 class SupabaseService {
   // Auth methods
-  async getCurrentUser() {
+  async getCurrentUser(): Promise<User | null> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       return user;
@@ -18,7 +19,7 @@ class SupabaseService {
     }
   }
 
-  async signOut() {
+  async signOut(): Promise<boolean> {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -29,14 +30,16 @@ class SupabaseService {
     }
   }
 
-  getAuthStateChangeListener(callback) {
+  getAuthStateChangeListener(
+    callback: (event: AuthChangeEvent, session: Session | null) => void
+  ) {
     return supabase.auth.onAuthStateChange((event, session) => {
       callback(event, session);
     });
   }
 
   // Fetch all tasks for authenticated user
-  async fetchTasks(userEmail) {
+  async fetchTasks(userEmail: string): Promise<DbTask[]> {
     if (!userEmail) return [];
 
     try {
@@ -47,7 +50,7 @@ class SupabaseService {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data || [];
+      return (data as DbTask[]) || [];
     } catch (error) {
       console.error('Error fetching tasks:', error);
       return [];
@@ -55,7 +58,7 @@ class SupabaseService {
   }
 
   // Create a new task
-  async createTask(task, userEmail) {
+  async createTask(task: Task, userEmail: string): Promise<DbTask> {
     if (!userEmail) throw new Error('User email required');
 
     try {
@@ -68,12 +71,12 @@ class SupabaseService {
             text: task.text,
             completed: task.completed,
             priority: task.priority,
-            due_date: task.dueDate,
-            due_time: task.dueTime,
-            category: task.category,
-            reminder_minutes: task.reminderMinutes,
-            recurrence: task.recurrence,
-            calendar_event_id: task.calendarEventId,
+            due_date: task.dueDate || null,
+            due_time: task.dueTime || null,
+            category: task.category || null,
+            reminder_minutes: task.reminderMinutes || null,
+            recurrence: task.recurrence || null,
+            calendar_event_id: task.calendarEventId || null,
             time_spent: task.timeSpent || 0,
             is_tracking: task.isTracking || false,
             tracking_start_time: task.trackingStartTime || null,
@@ -83,7 +86,7 @@ class SupabaseService {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as DbTask;
     } catch (error) {
       console.error('Error creating task:', error);
       throw error;
@@ -91,7 +94,11 @@ class SupabaseService {
   }
 
   // Update an existing task
-  async updateTask(taskId, updates, userEmail) {
+  async updateTask(
+    taskId: number,
+    updates: Partial<Task>,
+    userEmail: string
+  ): Promise<DbTask> {
     if (!userEmail) throw new Error('User email required');
 
     try {
@@ -117,7 +124,7 @@ class SupabaseService {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as DbTask;
     } catch (error) {
       console.error('Error updating task:', error);
       throw error;
@@ -125,7 +132,7 @@ class SupabaseService {
   }
 
   // Delete a task
-  async deleteTask(taskId, userEmail) {
+  async deleteTask(taskId: number, userEmail: string): Promise<boolean> {
     if (!userEmail) throw new Error('User email required');
 
     try {
@@ -144,7 +151,7 @@ class SupabaseService {
   }
 
   // Delete completed tasks
-  async deleteCompletedTasks(userEmail) {
+  async deleteCompletedTasks(userEmail: string): Promise<boolean> {
     if (!userEmail) throw new Error('User email required');
 
     try {
@@ -163,38 +170,38 @@ class SupabaseService {
   }
 
   // Convert database task to app format
-  convertToAppFormat(dbTask) {
+  convertToAppFormat(dbTask: DbTask): Task {
     return {
       id: dbTask.id,
       text: dbTask.text,
       completed: dbTask.completed,
-      priority: dbTask.priority,
-      dueDate: dbTask.due_date,
-      dueTime: dbTask.due_time,
-      category: dbTask.category,
-      reminderMinutes: dbTask.reminder_minutes,
-      recurrence: dbTask.recurrence,
-      calendarEventId: dbTask.calendar_event_id,
+      priority: dbTask.priority as 'high' | 'medium' | 'low',
+      dueDate: dbTask.due_date || undefined,
+      dueTime: dbTask.due_time || undefined,
+      category: dbTask.category || undefined,
+      reminderMinutes: dbTask.reminder_minutes || undefined,
+      recurrence: (dbTask.recurrence as 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly' | null) || undefined,
+      calendarEventId: dbTask.calendar_event_id || undefined,
       timeSpent: dbTask.time_spent || 0,
       isTracking: dbTask.is_tracking || false,
-      trackingStartTime: dbTask.tracking_start_time || null,
+      trackingStartTime: dbTask.tracking_start_time || undefined,
     };
   }
 
   // Convert app task to database format
-  convertToDbFormat(task, userEmail) {
+  convertToDbFormat(task: Task, userEmail: string): DbTask {
     return {
       id: task.id,
       user_email: userEmail,
       text: task.text,
       completed: task.completed,
       priority: task.priority,
-      due_date: task.dueDate,
-      due_time: task.dueTime,
-      category: task.category,
-      reminder_minutes: task.reminderMinutes,
-      recurrence: task.recurrence,
-      calendar_event_id: task.calendarEventId,
+      due_date: task.dueDate || null,
+      due_time: task.dueTime || null,
+      category: task.category || null,
+      reminder_minutes: task.reminderMinutes || null,
+      recurrence: task.recurrence || null,
+      calendar_event_id: task.calendarEventId || null,
       time_spent: task.timeSpent || 0,
       is_tracking: task.isTracking || false,
       tracking_start_time: task.trackingStartTime || null,
