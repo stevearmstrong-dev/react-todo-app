@@ -117,10 +117,14 @@ function DraggableBlock({ task, getPriorityColor, onUnschedule, onTaskClick, onE
         </div>
       </div>
       <div className="time-block-time">
-        {task.scheduledStart && (() => {
-          const start = new Date(task.scheduledStart);
-          const end = new Date(start.getTime() + (task.scheduledDuration || 60) * 60000);
-          return `${start.getHours()}:${start.getMinutes().toString().padStart(2, '0')} - ${end.getHours()}:${end.getMinutes().toString().padStart(2, '0')}`;
+        {task.dueTime && (() => {
+          const [hours, minutes] = task.dueTime.split(':').map(Number);
+          const startDate = new Date();
+          startDate.setHours(hours, minutes, 0, 0);
+          const endDate = new Date(startDate.getTime() + (task.scheduledDuration || 60) * 60000);
+          const formatHour = (h: number) => h === 0 ? 12 : h > 12 ? h - 12 : h;
+          const formatPeriod = (h: number) => h >= 12 ? 'PM' : 'AM';
+          return `${formatHour(hours)}:${minutes.toString().padStart(2, '0')} ${formatPeriod(hours)} - ${formatHour(endDate.getHours())}:${endDate.getMinutes().toString().padStart(2, '0')} ${formatPeriod(endDate.getHours())}`;
         })()}
       </div>
       <div className="time-block-meta">
@@ -193,12 +197,13 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
 
     if (!draggedTask || targetHour === undefined) return;
 
-    // Schedule the task at the target hour
-    const startTime = new Date(selectedDate);
-    startTime.setHours(targetHour, 0, 0, 0);
+    // Schedule the task at the target hour by setting dueDate and dueTime
+    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
+    const timeStr = `${String(targetHour).padStart(2, '0')}:00`;
 
     onUpdateTask(draggedTask.id, {
-      scheduledStart: startTime.toISOString(),
+      dueDate: dateStr,
+      dueTime: timeStr,
       scheduledDuration: draggedTask.scheduledDuration || 60,
     });
   };
@@ -207,19 +212,23 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
     setActiveTask(event.active.data.current?.task);
   };
 
-  // Get unscheduled tasks (no scheduledStart)
-  const unscheduledTasks = tasks.filter(
-    (task) => !task.completed && !task.scheduledStart
-  );
+  // Get unscheduled tasks (no dueTime set for today)
+  const unscheduledTasks = tasks.filter((task) => {
+    if (task.completed) return false;
+    // If task has no dueDate or no dueTime, it's unscheduled
+    if (!task.dueDate || !task.dueTime) return true;
+    // If task has dueDate but it's not today, it's unscheduled for today's view
+    const [year, month, day] = task.dueDate.split('-').map(Number);
+    const taskDate = new Date(year, month - 1, day);
+    return taskDate.toDateString() !== selectedDate.toDateString();
+  });
 
-  // Get scheduled tasks for today
+  // Get scheduled tasks for today (has dueDate = today AND dueTime set)
   const scheduledTasks = tasks.filter((task) => {
-    if (!task.scheduledStart) return false;
-    const taskDate = new Date(task.scheduledStart);
-    return (
-      taskDate.toDateString() === selectedDate.toDateString() &&
-      !task.completed
-    );
+    if (task.completed || !task.dueDate || !task.dueTime) return false;
+    const [year, month, day] = task.dueDate.split('-').map(Number);
+    const taskDate = new Date(year, month - 1, day);
+    return taskDate.toDateString() === selectedDate.toDateString();
   });
 
   // Generate hourly time slots (8 AM - 8 PM)
@@ -258,10 +267,10 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
     setSelectedTask(null);
   };
 
-  // Unschedule a task
+  // Unschedule a task (clear the dueTime)
   const unscheduleTask = (task: Task) => {
     onUpdateTask(task.id, {
-      scheduledStart: undefined,
+      dueTime: undefined,
       scheduledDuration: undefined,
     });
   };
@@ -350,10 +359,10 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
             {/* Render all scheduled blocks with absolute positioning */}
             <div className="timeline-blocks">
               {scheduledTasks.map((task) => {
-                if (!task.scheduledStart) return null;
-                const taskStart = new Date(task.scheduledStart);
-                const startHour = taskStart.getHours();
-                const startMinutes = taskStart.getMinutes();
+                if (!task.dueTime) return null;
+                const [hours, minutes] = task.dueTime.split(':').map(Number);
+                const startHour = hours;
+                const startMinutes = minutes;
 
                 // Calculate top position based on hour (each slot is 104px)
                 // First slot starts at hour 8
@@ -363,7 +372,7 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
                 // Each slot is 104px, add offset for minutes within the hour
                 const topPosition = slotIndex * 104 + (startMinutes / 60) * 104;
 
-                // Calculate height based on duration
+                // Calculate height based on duration (use scheduledDuration if set, otherwise default 60 min)
                 const durationInMinutes = task.scheduledDuration || 60;
                 const heightInPx = (durationInMinutes / 60) * 104;
 

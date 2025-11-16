@@ -8,18 +8,26 @@ interface TimeBlockEditorProps {
 }
 
 function TimeBlockEditor({ task, onSave, onClose }: TimeBlockEditorProps) {
-  const taskDate = task.scheduledStart ? new Date(task.scheduledStart) : new Date();
+  // Parse dueTime if it exists, otherwise use current time
+  const getInitialTime = () => {
+    if (task.dueTime) {
+      const [h, m] = task.dueTime.split(':').map(Number);
+      return { hours: h, minutes: m };
+    }
+    const now = new Date();
+    return { hours: now.getHours(), minutes: 0 };
+  };
 
-  const [hours, setHours] = useState(taskDate.getHours());
-  const [minutes, setMinutes] = useState(taskDate.getMinutes());
+  const initialTime = getInitialTime();
+  const [hours, setHours] = useState(initialTime.hours);
+  const [minutes, setMinutes] = useState(initialTime.minutes);
   const [duration, setDuration] = useState(task.scheduledDuration || 60);
 
   const handleSave = () => {
-    const startTime = new Date(taskDate);
-    startTime.setHours(hours, minutes, 0, 0);
+    const timeStr = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 
     onSave({
-      scheduledStart: startTime.toISOString(),
+      dueTime: timeStr,
       scheduledDuration: duration,
     });
     onClose();
@@ -121,7 +129,7 @@ function TimeBlockEditor({ task, onSave, onClose }: TimeBlockEditorProps) {
 
           <div className="end-time-display">
             {(() => {
-              const endTime = new Date(taskDate);
+              const endTime = new Date();
               endTime.setHours(hours, minutes + duration, 0, 0);
               return `Ends at ${formatTime(endTime.getHours(), endTime.getMinutes())}`;
             })()}
