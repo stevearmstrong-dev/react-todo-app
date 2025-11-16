@@ -14,11 +14,14 @@ A modern, full-stack productivity application built with React and Supabase. Zen
 
 - **Today View**: Focus on today's tasks with progress tracking and completion metrics
 - **Eisenhower Matrix**: Organize tasks by urgency and importance into four actionable quadrants
+- **Time Blocks**: Drag-and-drop scheduling with 15-minute intervals and visual task spanning
 - **Pomodoro Timer**: Built-in focus timer with work/break cycles, session tracking, and customizable durations
 - **Time Tracking**: Track time spent on each task with start/stop/reset controls and analytics
+- **Duration Estimation**: Set expected task duration for better planning
 - **Voice Input**: Add tasks hands-free using voice recognition (Chrome/Edge)
 - **Quick Add**: Rapidly create tasks with one-click priority and category presets
 - **Smart Reminders**: Browser notifications (5 min, 15 min, 30 min, 1 hour, 1 day before due time)
+- **Recurring Tasks**: Daily, weekly, biweekly, monthly, and yearly auto-regeneration
 
 ### Authentication & Sync
 
@@ -33,8 +36,8 @@ A modern, full-stack productivity application built with React and Supabase. Zen
 - **Sidebar Navigation**: Clean navigation between Today, All Tasks, Dashboard, and Pomodoro
 - **Priority Levels**: High, medium, and low priority with visual indicators
 - **Scheduling**: Set due dates and specific times for tasks
-- **Categories**: Organize tasks with custom categories
-- **Recurring Tasks**: Daily, weekly, biweekly, monthly, and yearly auto-regeneration
+- **Duration Planning**: Estimate task duration (15min to 4+ hours)
+- **Categories**: Organize tasks with predefined or custom categories
 - **Search & Filter**: Search by text/category and filter by status (all, active, completed)
 - **Overdue Detection**: Automatic detection and warnings for overdue tasks
 - **Task Operations**: Create, edit, delete, and mark tasks complete
@@ -127,6 +130,7 @@ CREATE TABLE tasks (
   category TEXT,
   reminder_minutes INTEGER,
   recurrence TEXT,
+  scheduled_duration INTEGER,
   calendar_event_id TEXT,
   time_spent INTEGER DEFAULT 0,
   is_tracking BOOLEAN DEFAULT false,
@@ -191,14 +195,18 @@ zentask/
 │   │   ├── CalendarPicker.tsx     # Date selection component
 │   │   ├── CategoryPicker.tsx     # Category management
 │   │   ├── Dashboard.tsx          # Analytics dashboard
+│   │   ├── DurationPicker.tsx     # Task duration estimation
 │   │   ├── EisenhowerMatrix.tsx   # Eisenhower Matrix view
 │   │   ├── Greeting.tsx           # Personalized greeting
 │   │   ├── Onboarding.tsx         # New user tutorial
 │   │   ├── PomodoroTimer.tsx      # Focus timer with sessions
 │   │   ├── PriorityPicker.tsx     # Priority selection
 │   │   ├── QuickAddTasks.tsx      # One-click task creation
+│   │   ├── RecurrencePicker.tsx   # Task recurrence selection
 │   │   ├── ReminderPicker.tsx     # Reminder time selection
 │   │   ├── Sidebar.tsx            # Navigation sidebar
+│   │   ├── TimeBlockEditor.tsx    # Edit scheduled time blocks
+│   │   ├── TimeBlocksView.tsx     # Drag-and-drop time scheduling
 │   │   ├── TimePicker.tsx         # Time selection component
 │   │   ├── ToDo.tsx               # Individual task component
 │   │   ├── ToDoForm.tsx           # Task creation form
@@ -274,6 +282,17 @@ Prioritize effectively using the Eisenhower Matrix methodology:
 - **Responsive Design**: 2x2 grid on desktop, stacked on mobile
 - **Unified Theme**: Beautiful glassmorphic design with blue gradients
 
+### Time Blocks
+
+Schedule your day with precision using the time blocks view:
+- **15-Minute Intervals**: Granular time slots from 8 AM to 8 PM
+- **Drag-and-Drop Scheduling**: Easily drag unscheduled tasks to specific time slots
+- **Visual Task Spanning**: Tasks visually span their estimated duration across multiple slots
+- **Interactive Editing**: Click to edit task times and durations
+- **Smart Slot Detection**: Shows when slots are occupied by ongoing tasks
+- **Focus Mode Integration**: Quick access to focus mode from any scheduled task
+- **Responsive Layout**: Side-by-side view of unscheduled tasks and timeline
+
 ### Dashboard Analytics
 
 Gain insights into your productivity:
@@ -286,7 +305,7 @@ Gain insights into your productivity:
 ### Sidebar Navigation
 
 Professional navigation with:
-- **View switching**: Quick access to Today, All Tasks, Dashboard, Matrix, Pomodoro
+- **View switching**: Quick access to Today, All Tasks, Dashboard, Matrix, Time Blocks, Pomodoro
 - **User profile**: Avatar and username display
 - **Quick controls**: Dark mode toggle and sign out button
 - **Active state**: Clear visual indication of current view
@@ -322,6 +341,7 @@ CREATE TABLE tasks (
   category TEXT,
   reminder_minutes INTEGER,
   recurrence TEXT,
+  scheduled_duration INTEGER,
   calendar_event_id TEXT,
   time_spent INTEGER DEFAULT 0,
   is_tracking BOOLEAN DEFAULT false,
@@ -439,6 +459,8 @@ Planned features for future releases:
 - [x] **Time Tracking**: Track actual time spent on tasks ✓
 - [x] **Eisenhower Matrix**: Urgent/Important quadrant view ✓
 - [x] **Focus Mode**: Distraction-free single-task view with time tracking and Pomodoro ✓
+- [x] **Time Blocks**: Drag-and-drop time scheduling with 15-minute intervals ✓
+- [x] **Duration Estimation**: Set expected task duration for planning ✓
 - [ ] **Subtasks**: Break tasks into smaller checklist items
 - [ ] **Kanban Board**: Drag-and-drop task workflow
 - [ ] **Habit Tracker**: Daily habits with streak counters
