@@ -6493,7 +6493,7 @@ body {
 
 .time-block-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
@@ -6504,16 +6504,28 @@ body {
   color: #111722;
   flex: 1;
   line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
+.time-block-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.time-block-edit,
 .time-block-remove {
   background: none;
   border: none;
   color: #999;
-  font-size: 24px;
+  font-size: 16px;
   line-height: 1;
   cursor: pointer;
-  padding: 0;
+  padding: 2px;
   width: 24px;
   height: 24px;
   display: flex;
@@ -6521,6 +6533,11 @@ body {
   justify-content: center;
   border-radius: 4px;
   transition: all 0.2s ease;
+}
+
+.time-block-edit:hover {
+  background: rgba(115, 171, 255, 0.1);
+  color: #73abff;
 }
 
 .time-block-remove:hover {
@@ -6554,13 +6571,12 @@ body {
 }
 
 .block-focus-btn {
-  margin-left: auto;
-  padding: 4px 12px;
+  padding: 2px 8px;
   background: linear-gradient(135deg, #73abff 0%, #5d95e8 100%);
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;

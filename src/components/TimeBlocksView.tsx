@@ -94,6 +94,21 @@ function DraggableBlock({ task, getPriorityColor, onUnschedule, onTaskClick, onE
       <div className="time-block-header">
         <span className="time-block-title">{task.text}</span>
         <div className="time-block-actions">
+          {task.category && (
+            <span className="block-category">{task.category}</span>
+          )}
+          <span className="block-duration">
+            {task.scheduledDuration || 60} min
+          </span>
+          <button
+            className="block-focus-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTaskClick(task);
+            }}
+          >
+            🎯 Focus
+          </button>
           <button
             className="time-block-edit"
             onClick={(e) => {
@@ -126,23 +141,6 @@ function DraggableBlock({ task, getPriorityColor, onUnschedule, onTaskClick, onE
           const formatPeriod = (h: number) => h >= 12 ? 'PM' : 'AM';
           return `${formatHour(hours)}:${minutes.toString().padStart(2, '0')} ${formatPeriod(hours)} - ${formatHour(endDate.getHours())}:${endDate.getMinutes().toString().padStart(2, '0')} ${formatPeriod(endDate.getHours())}`;
         })()}
-      </div>
-      <div className="time-block-meta">
-        {task.category && (
-          <span className="block-category">{task.category}</span>
-        )}
-        <span className="block-duration">
-          {task.scheduledDuration || 60} min
-        </span>
-        <button
-          className="block-focus-btn"
-          onClick={(e) => {
-            e.stopPropagation();
-            onTaskClick(task);
-          }}
-        >
-          🎯 Focus
-        </button>
       </div>
     </div>
   );
