@@ -74,10 +74,6 @@ function DraggableBlock({ task, getPriorityColor, onUnschedule, onTaskClick, onE
     data: { task, type: 'scheduled' },
   });
 
-  // Calculate height based on duration (80px per hour)
-  const durationInMinutes = task.scheduledDuration || 60;
-  const heightInPx = (durationInMinutes / 60) * 80;
-
   const style = {
     transform: CSS.Transform.toString(transform),
     opacity: isDragging ? 0.5 : 1,
@@ -91,7 +87,6 @@ function DraggableBlock({ task, getPriorityColor, onUnschedule, onTaskClick, onE
       style={{
         ...style,
         borderLeft: `4px solid ${getPriorityColor(task.priority)}`,
-        minHeight: `${heightInPx}px`,
       }}
       {...listeners}
       {...attributes}
@@ -352,33 +347,56 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
         <div className="timeline-view">
           <h3>Today's Schedule</h3>
           <div className="timeline">
-            {timeSlots.map((slot) => {
-              const tasksAtSlot = getTasksAtHour(slot.hour);
+            {/* Render all scheduled blocks with absolute positioning */}
+            <div className="timeline-blocks">
+              {scheduledTasks.map((task) => {
+                if (!task.scheduledStart) return null;
+                const taskStart = new Date(task.scheduledStart);
+                const startHour = taskStart.getHours();
+                const startMinutes = taskStart.getMinutes();
 
-              return (
-                <div key={slot.hour} className="time-slot">
-                  <div className="time-label">{slot.label}</div>
-                  <DroppableSlot hour={slot.hour}>
-                    {tasksAtSlot.length > 0 ? (
-                      <div className="time-slot-tasks">
-                        {tasksAtSlot.map((task) => (
-                          <DraggableBlock
-                            key={task.id}
-                            task={task}
-                            getPriorityColor={getPriorityColor}
-                            onUnschedule={unscheduleTask}
-                            onTaskClick={onTaskClick}
-                            onEdit={setEditingTask}
-                          />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="time-slot-empty">Drop here</div>
-                    )}
-                  </DroppableSlot>
-                </div>
-              );
-            })}
+                // Calculate top position based on hour (each slot is 104px)
+                // First slot starts at hour 8
+                const slotIndex = startHour - 8;
+                if (slotIndex < 0 || slotIndex > 12) return null; // Outside visible range
+
+                // Each slot is 104px, add offset for minutes within the hour
+                const topPosition = slotIndex * 104 + (startMinutes / 60) * 104;
+
+                // Calculate height based on duration
+                const durationInMinutes = task.scheduledDuration || 60;
+                const heightInPx = (durationInMinutes / 60) * 104;
+
+                return (
+                  <div
+                    key={task.id}
+                    className="timeline-block-wrapper"
+                    style={{
+                      top: `${topPosition}px`,
+                      height: `${heightInPx}px`,
+                    }}
+                  >
+                    <DraggableBlock
+                      task={task}
+                      getPriorityColor={getPriorityColor}
+                      onUnschedule={unscheduleTask}
+                      onTaskClick={onTaskClick}
+                      onEdit={setEditingTask}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Time slots grid */}
+            {timeSlots.map((slot) => (
+              <div key={slot.hour} className="time-slot">
+                <div className="time-label">{slot.label}</div>
+                <DroppableSlot hour={slot.hour}>
+                  <div className="time-slot-empty">Drop here</div>
+                </DroppableSlot>
+              </div>
+            ))}
           </div>
         </div>
       </div>
