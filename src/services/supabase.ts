@@ -83,6 +83,8 @@ class SupabaseService {
             pomodoro_time: task.pomodoroTime || null,
             pomodoro_mode: task.pomodoroMode || null,
             pomodoro_active: task.pomodoroActive || false,
+            scheduled_start: task.scheduledStart || null,
+            scheduled_duration: task.scheduledDuration || null,
           },
         ])
         .select()
@@ -123,6 +125,8 @@ class SupabaseService {
           pomodoro_time: updates.pomodoroTime,
           pomodoro_mode: updates.pomodoroMode,
           pomodoro_active: updates.pomodoroActive,
+          scheduled_start: updates.scheduledStart,
+          scheduled_duration: updates.scheduledDuration,
         })
         .eq('id', taskId)
         .eq('user_email', userEmail)
@@ -194,6 +198,8 @@ class SupabaseService {
       pomodoroTime: dbTask.pomodoro_time || undefined,
       pomodoroMode: (dbTask.pomodoro_mode as 'work' | 'break') || undefined,
       pomodoroActive: dbTask.pomodoro_active || false,
+      scheduledStart: dbTask.scheduled_start || undefined,
+      scheduledDuration: dbTask.scheduled_duration || undefined,
     };
   }
 
@@ -217,6 +223,8 @@ class SupabaseService {
       pomodoro_time: task.pomodoroTime || null,
       pomodoro_mode: task.pomodoroMode || null,
       pomodoro_active: task.pomodoroActive || false,
+      scheduled_start: task.scheduledStart || null,
+      scheduled_duration: task.scheduledDuration || null,
     };
   }
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 
-type ViewType = 'today' | 'tasks' | 'dashboard' | 'matrix' | 'pomodoro';
+type ViewType = 'today' | 'tasks' | 'dashboard' | 'matrix' | 'pomodoro' | 'timeblocks';
 
 interface MenuItem {
   id: ViewType;
@@ -23,6 +23,7 @@ function Sidebar({ activeView, onViewChange, userName, onSignOut, darkMode, onTo
     { id: 'tasks', icon: '✓', label: 'All Tasks' },
     { id: 'dashboard', icon: '📊', label: 'Dashboard' },
     { id: 'matrix', icon: '⊞', label: 'Matrix' },
+    { id: 'timeblocks', icon: '🕒', label: 'Time Blocks' },
     { id: 'pomodoro', icon: '🍅', label: 'Pomodoro' },
   ];
 

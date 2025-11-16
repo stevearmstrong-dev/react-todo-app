@@ -13,6 +13,7 @@ import PasswordReset from './components/Auth/PasswordReset';
 import QuickAddTasks from './components/QuickAddTasks';
 import PomodoroTimer from './components/PomodoroTimer';
 import EisenhowerMatrix from './components/EisenhowerMatrix';
+import TimeBlocksView from './components/TimeBlocksView';
 import Sidebar from './components/Sidebar';
 import { ViewType } from './components/Sidebar';
 import FocusMode from './components/FocusMode';
@@ -559,7 +560,7 @@ function App() {
         />
 
         <div className="main-content">
-          {view !== 'pomodoro' && view !== 'matrix' && <Greeting userName={userName} />}
+          {view !== 'pomodoro' && view !== 'matrix' && view !== 'timeblocks' && <Greeting userName={userName} />}
 
         {view === 'today' ? (
           <>
@@ -658,6 +659,12 @@ function App() {
             editTask={editTask}
             onUpdateTime={updateTaskTime}
             onFocus={setFocusedTask}
+          />
+        ) : view === 'timeblocks' ? (
+          <TimeBlocksView
+            tasks={tasks}
+            onUpdateTask={updateTaskTime}
+            onTaskClick={setFocusedTask}
           />
         ) : (
           <Dashboard tasks={tasks} />
