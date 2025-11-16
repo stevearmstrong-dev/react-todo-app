@@ -6381,27 +6381,25 @@ body {
   position: relative;
 }
 
-/* Absolute positioned blocks container */
-.timeline-blocks {
-  position: absolute;
-  top: 0;
-  left: 116px; /* 100px label + 16px gap */
-  right: 0;
-  bottom: 0;
-  z-index: 20;
-  pointer-events: none;
+/* Slot-relative block positioning */
+.slot-blocks-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 60px;
 }
 
-.timeline-block-wrapper {
+.slot-block-wrapper {
   position: absolute;
   left: 0;
   right: 0;
-  pointer-events: auto;
-  padding: 4px 0;
+  z-index: 10;
+  overflow: visible;
 }
 
-.timeline-block-wrapper .time-block {
+.slot-block-wrapper .time-block {
   height: 100%;
+  min-height: 70px;
   margin: 0;
 }
 
@@ -6434,6 +6432,7 @@ body {
   overflow: visible;
   position: relative;
   z-index: 1;
+  height: 100%;
 }
 
 .time-content.available {

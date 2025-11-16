@@ -356,62 +356,58 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
         <div className="timeline-view">
           <h3>Today's Schedule</h3>
           <div className="timeline">
-            {/* Render all scheduled blocks with absolute positioning */}
-            <div className="timeline-blocks">
-              {scheduledTasks.map((task) => {
-                if (!task.dueTime) return null;
-                const [hours, minutes] = task.dueTime.split(':').map(Number);
-                const startHour = hours;
-                const startMinutes = minutes;
+            {/* Time slots with blocks rendered inside their starting slot */}
+            {timeSlots.map((slot) => {
+              // Get tasks that START in this hour slot
+              const tasksInSlot = scheduledTasks.filter((task) => {
+                if (!task.dueTime) return false;
+                const [hours] = task.dueTime.split(':').map(Number);
+                return hours === slot.hour;
+              });
 
-                // Slot structure: 104px total = 12px padding + 80px content + 12px padding
-                const SLOT_HEIGHT = 104;
-                const SLOT_PADDING = 12;
-                const CONTENT_HEIGHT = 80;
+              return (
+                <div key={slot.hour} className="time-slot">
+                  <div className="time-label">{slot.label}</div>
+                  <DroppableSlot hour={slot.hour}>
+                    {tasksInSlot.length > 0 ? (
+                      <div className="slot-blocks-container">
+                        {tasksInSlot.map((task) => {
+                          const [, minutes] = task.dueTime!.split(':').map(Number);
+                          const durationInMinutes = task.scheduledDuration || 60;
 
-                // Calculate which slot this task starts in
-                const slotIndex = startHour - 8;
-                if (slotIndex < 0 || slotIndex > 12) return null; // Outside visible range
+                          // Position within slot as percentage (0% = top, 100% = bottom)
+                          const topPercent = (minutes / 60) * 100;
 
-                // Position: slot base + padding + minute offset within content area
-                const topPosition = slotIndex * SLOT_HEIGHT + SLOT_PADDING + (startMinutes / 60) * CONTENT_HEIGHT;
+                          // Height as percentage of slot (100% = 1 hour)
+                          const heightPercent = Math.max((durationInMinutes / 60) * 100, 80);
 
-                // Height based on duration - use SLOT_HEIGHT to span across multiple slots correctly
-                const durationInMinutes = task.scheduledDuration || 60;
-                const calculatedHeight = (durationInMinutes / 60) * SLOT_HEIGHT;
-                // Ensure minimum height for readability (at least 70px for content)
-                const heightInPx = Math.max(calculatedHeight, 70);
-
-                return (
-                  <div
-                    key={task.id}
-                    className="timeline-block-wrapper"
-                    style={{
-                      top: `${topPosition}px`,
-                      height: `${heightInPx}px`,
-                    }}
-                  >
-                    <DraggableBlock
-                      task={task}
-                      getPriorityColor={getPriorityColor}
-                      onUnschedule={unscheduleTask}
-                      onTaskClick={onTaskClick}
-                      onEdit={setEditingTask}
-                    />
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Time slots grid */}
-            {timeSlots.map((slot) => (
-              <div key={slot.hour} className="time-slot">
-                <div className="time-label">{slot.label}</div>
-                <DroppableSlot hour={slot.hour}>
-                  <div className="time-slot-empty">Drop here</div>
-                </DroppableSlot>
-              </div>
-            ))}
+                          return (
+                            <div
+                              key={task.id}
+                              className="slot-block-wrapper"
+                              style={{
+                                top: `${topPercent}%`,
+                                height: `${heightPercent}%`,
+                              }}
+                            >
+                              <DraggableBlock
+                                task={task}
+                                getPriorityColor={getPriorityColor}
+                                onUnschedule={unscheduleTask}
+                                onTaskClick={onTaskClick}
+                                onEdit={setEditingTask}
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <div className="time-slot-empty">Drop here</div>
+                    )}
+                  </DroppableSlot>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
