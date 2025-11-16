@@ -258,22 +258,29 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
     });
   };
 
-  // Get all tasks scheduled in a specific hour
+  // Get all tasks scheduled in a specific hour, sorted by start time
   const getTasksAtHour = (hour: number) => {
-    return scheduledTasks.filter((task) => {
-      if (!task.scheduledStart) return false;
-      const taskStart = new Date(task.scheduledStart);
-      const taskEnd = new Date(taskStart.getTime() + (task.scheduledDuration || 60) * 60000);
+    return scheduledTasks
+      .filter((task) => {
+        if (!task.scheduledStart) return false;
+        const taskStart = new Date(task.scheduledStart);
+        const taskEnd = new Date(taskStart.getTime() + (task.scheduledDuration || 60) * 60000);
 
-      // Check if task starts or overlaps with this hour
-      const slotStart = new Date(selectedDate);
-      slotStart.setHours(hour, 0, 0, 0);
-      const slotEnd = new Date(selectedDate);
-      slotEnd.setHours(hour + 1, 0, 0, 0);
+        // Check if task starts or overlaps with this hour
+        const slotStart = new Date(selectedDate);
+        slotStart.setHours(hour, 0, 0, 0);
+        const slotEnd = new Date(selectedDate);
+        slotEnd.setHours(hour + 1, 0, 0, 0);
 
-      // Task overlaps if it starts before slot ends AND ends after slot starts
-      return taskStart < slotEnd && taskEnd > slotStart;
-    });
+        // Task overlaps if it starts before slot ends AND ends after slot starts
+        return taskStart < slotEnd && taskEnd > slotStart;
+      })
+      .sort((a, b) => {
+        // Sort by start time (earliest first)
+        const aTime = new Date(a.scheduledStart!).getTime();
+        const bTime = new Date(b.scheduledStart!).getTime();
+        return aTime - bTime;
+      });
   };
 
   // Format date for display
