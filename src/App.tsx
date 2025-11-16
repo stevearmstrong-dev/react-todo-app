@@ -233,10 +233,21 @@ function App() {
     return `${nextYear}-${nextMonth}-${nextDay}`;
   };
 
+  // Capitalize first letter if it's lowercase
+  const capitalizeFirstLetter = (text: string): string => {
+    if (!text) return text;
+    const firstChar = text.charAt(0);
+    // Only capitalize if first character is a lowercase letter (a-z)
+    if (/[a-z]/.test(firstChar)) {
+      return firstChar.toUpperCase() + text.slice(1);
+    }
+    return text;
+  };
+
   const addTask = async (taskData: Partial<Task>): Promise<void> => {
     const newTask: Task = {
       id: Date.now(),
-      text: taskData.text || '',
+      text: capitalizeFirstLetter(taskData.text || ''),
       completed: false,
       priority: taskData.priority || 'medium',
       dueDate: taskData.dueDate || '',
