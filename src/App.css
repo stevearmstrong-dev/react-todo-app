@@ -3675,6 +3675,7 @@ body {
   font-size: 0.7rem;
   color: #73ABFF;
   flex-shrink: 0;
+  opacity: 0.8;
   transition: transform 0.2s;
 }
 
