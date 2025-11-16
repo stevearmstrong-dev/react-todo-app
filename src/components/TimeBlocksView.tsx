@@ -369,6 +369,17 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
                 return hours === slot.hour && slotMinute === slot.minute;
               });
 
+              // Check if this slot is covered by any task (task started earlier but spans into this slot)
+              const isSlotCovered = scheduledTasks.some((task) => {
+                if (!task.dueTime) return false;
+                const [taskHours, taskMinutes] = task.dueTime.split(':').map(Number);
+                const taskStartInMinutes = taskHours * 60 + taskMinutes;
+                const taskEndInMinutes = taskStartInMinutes + (task.scheduledDuration || 60);
+                const slotStartInMinutes = slot.hour * 60 + slot.minute;
+                // Slot is covered if it falls within the task's time range (but not at the exact start)
+                return slotStartInMinutes >= taskStartInMinutes && slotStartInMinutes < taskEndInMinutes;
+              });
+
               return (
                 <div key={`${slot.hour}-${slot.minute}`} className="time-slot">
                   <div className="time-label">{slot.label}</div>
@@ -399,6 +410,8 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
                           );
                         })}
                       </div>
+                    ) : isSlotCovered ? (
+                      <div className="time-slot-covered" />
                     ) : (
                       <div className="time-slot-empty">Drop here</div>
                     )}

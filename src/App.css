@@ -6470,6 +6470,11 @@ body {
   pointer-events: none;
 }
 
+.time-slot-covered {
+  height: 48px;
+  pointer-events: none;
+}
+
 /* Time Block (Scheduled Task) */
 .time-block {
   padding: 12px 16px;
