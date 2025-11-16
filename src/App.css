@@ -6385,13 +6385,14 @@ body {
 .slot-blocks-container {
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 60px;
+  height: 48px;
 }
 
 .slot-block-wrapper {
-  position: relative;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 10;
 }
 
@@ -6401,15 +6402,17 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .time-slot {
   display: grid;
   grid-template-columns: 80px 1fr;
   gap: 12px;
-  min-height: 40px;
+  height: 48px;
   border-bottom: 1px solid #e9ecef;
-  padding: 4px 0;
+  padding: 0;
   position: relative;
   overflow: visible;
   align-items: start;
@@ -6427,13 +6430,12 @@ body {
 }
 
 .time-content {
-  min-height: 32px;
+  height: 48px;
   border-radius: 8px;
   transition: all 0.2s ease;
   overflow: visible;
   position: relative;
   z-index: 1;
-  height: 100%;
 }
 
 .time-content.available {

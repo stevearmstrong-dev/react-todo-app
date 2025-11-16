@@ -376,10 +376,17 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
                     {tasksInSlot.length > 0 ? (
                       <div className="slot-blocks-container">
                         {tasksInSlot.map((task) => {
+                          // Calculate height based on duration
+                          // Each 15-minute slot is 48px
+                          const durationMinutes = task.scheduledDuration || 60;
+                          const slotsSpanned = Math.ceil(durationMinutes / 15);
+                          const heightPx = slotsSpanned * 48;
+
                           return (
                             <div
                               key={task.id}
                               className="slot-block-wrapper"
+                              style={{ height: `${heightPx}px` }}
                             >
                               <DraggableBlock
                                 task={task}
