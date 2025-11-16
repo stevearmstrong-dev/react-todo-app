@@ -4008,7 +4008,8 @@ body {
 }
 
 .duration-icon {
-  font-size: 14px;
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .duration-display {
@@ -5185,6 +5186,11 @@ body {
   border-color: rgba(115, 171, 255, 0.4);
   background: linear-gradient(135deg, rgba(115, 171, 255, 0.15) 0%, rgba(115, 171, 255, 0.08) 100%);
   box-shadow: 0 4px 12px rgba(115, 171, 255, 0.25);
+}
+
+.picker-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .picker-arrow {
