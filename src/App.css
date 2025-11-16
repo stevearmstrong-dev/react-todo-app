@@ -4523,8 +4523,8 @@ body {
 }
 
 .dark-mode .reminder-option {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(115, 171, 255, 0.15);
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.08) 0%, rgba(115, 171, 255, 0.03) 100%);
+  border-color: rgba(115, 171, 255, 0.25);
 }
 
 .reminder-option:hover {
@@ -4533,8 +4533,18 @@ body {
   transform: translateX(4px);
 }
 
+.dark-mode .reminder-option:hover {
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.2) 0%, rgba(115, 171, 255, 0.1) 100%);
+  border-color: rgba(115, 171, 255, 0.5);
+}
+
 .reminder-option.selected {
   background: linear-gradient(135deg, rgba(115, 171, 255, 0.15) 0%, rgba(115, 171, 255, 0.08) 100%);
+  border-color: #73ABFF;
+}
+
+.dark-mode .reminder-option.selected {
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.25) 0%, rgba(115, 171, 255, 0.15) 100%);
   border-color: #73ABFF;
 }
 
