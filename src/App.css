@@ -5209,9 +5209,10 @@ body {
 }
 
 .dark-mode .recurrence-dropdown {
-  background: #2a2f3d;
-  border-color: rgba(115, 171, 255, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.12) 0%, rgba(115, 171, 255, 0.05) 100%);
+  border-color: rgba(115, 171, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(115, 171, 255, 0.15);
+  backdrop-filter: blur(10px);
 }
 
 .recurrence-option {
@@ -5243,21 +5244,21 @@ body {
 }
 
 .recurrence-option:hover {
-  background-color: rgba(115, 171, 255, 0.1);
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.15) 0%, rgba(115, 171, 255, 0.08) 100%);
 }
 
 .recurrence-option.selected {
-  background-color: rgba(115, 171, 255, 0.15);
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.2) 0%, rgba(115, 171, 255, 0.1) 100%);
   color: #73ABFF;
   font-weight: 600;
 }
 
 .dark-mode .recurrence-option:hover {
-  background-color: rgba(115, 171, 255, 0.15);
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.2) 0%, rgba(115, 171, 255, 0.12) 100%);
 }
 
 .dark-mode .recurrence-option.selected {
-  background-color: rgba(115, 171, 255, 0.2);
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.3) 0%, rgba(115, 171, 255, 0.2) 100%);
   color: #73ABFF;
 }
 
