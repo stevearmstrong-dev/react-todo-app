@@ -4041,6 +4041,7 @@ body {
   z-index: 1000;
   padding: 12px;
   backdrop-filter: blur(10px);
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark-mode .duration-dropdown {
@@ -5232,6 +5233,7 @@ body {
   overflow-y: auto;
   z-index: 1000;
   border: 1px solid rgba(0, 0, 0, 0.1);
+  animation: slideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .dark-mode .recurrence-dropdown {
