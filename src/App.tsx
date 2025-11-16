@@ -17,6 +17,8 @@ import TimeBlocksView from './components/TimeBlocksView';
 import Sidebar from './components/Sidebar';
 import { ViewType } from './components/Sidebar';
 import FocusMode from './components/FocusMode';
+import CelebrationToast from './components/CelebrationToast';
+import { getQuoteByCategory } from './data/navalQuotes';
 import supabaseService from './services/supabase';
 import { User } from '@supabase/supabase-js';
 
@@ -38,6 +40,7 @@ function App() {
   const [userEmail, setUserEmail] = useState<string>('');
   const [isGuestMode, setIsGuestMode] = useState<boolean>(false);
   const [focusedTask, setFocusedTask] = useState<Task | null>(null);
+  const [celebrationQuote, setCelebrationQuote] = useState<string | null>(null);
   const notifiedTasksRef = useRef<Set<string>>(new Set());
 
   // Request notification permission
@@ -277,6 +280,12 @@ function App() {
     if (!task) return;
 
     const updatedTask = { ...task, completed: !task.completed };
+
+    // Show celebration when completing a task
+    if (!task.completed && updatedTask.completed) {
+      const quote = getQuoteByCategory('completion');
+      setCelebrationQuote(quote);
+    }
 
     // If completing a recurring task, create next occurrence
     if (!task.completed && task.recurrence && updatedTask.completed) {
@@ -558,6 +567,13 @@ function App() {
 
       {showOnboarding && (
         <Onboarding onComplete={handleOnboardingComplete} addTask={addTask} />
+      )}
+
+      {celebrationQuote && (
+        <CelebrationToast
+          quote={celebrationQuote}
+          onClose={() => setCelebrationQuote(null)}
+        />
       )}
 
       <div className="app-layout">

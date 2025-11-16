@@ -6464,3 +6464,313 @@ body {
   background: rgba(255, 107, 107, 0.2);
   color: #ff6b6b;
 }
+
+/* =================================
+   NAVAL QUOTES
+   ================================= */
+
+.naval-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.1) 0%, rgba(93, 149, 232, 0.05) 100%);
+  border-left: 4px solid #73abff;
+  border-radius: 12px;
+  margin: 20px 0;
+  transition: all 0.3s ease;
+}
+
+.naval-quote:hover {
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.15) 0%, rgba(93, 149, 232, 0.08) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(115, 171, 255, 0.15);
+}
+
+.naval-quote.minimal {
+  padding: 16px;
+  margin: 12px 0;
+  background: rgba(115, 171, 255, 0.05);
+  border-left-width: 3px;
+}
+
+.naval-quote.highlighted {
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.2) 0%, rgba(93, 149, 232, 0.1) 100%);
+  border-left-width: 5px;
+  padding: 28px;
+}
+
+.quote-icon {
+  font-size: 32px;
+  opacity: 0.8;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+}
+
+.quote-text {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #111722;
+  font-style: italic;
+  text-align: center;
+  margin: 0;
+  max-width: 600px;
+  font-weight: 500;
+}
+
+.naval-quote.minimal .quote-text {
+  font-size: 14px;
+}
+
+.naval-quote.highlighted .quote-text {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.quote-author {
+  font-size: 14px;
+  color: #73abff;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* Dark Mode - Quotes */
+.dark-mode .quote-text {
+  color: #f5f5f7;
+}
+
+.dark-mode .naval-quote {
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.15) 0%, rgba(93, 149, 232, 0.08) 100%);
+}
+
+.dark-mode .naval-quote:hover {
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.2) 0%, rgba(93, 149, 232, 0.12) 100%);
+  box-shadow: 0 4px 12px rgba(115, 171, 255, 0.25);
+}
+
+.dark-mode .naval-quote.minimal {
+  background: rgba(115, 171, 255, 0.1);
+}
+
+.dark-mode .naval-quote.highlighted {
+  background: linear-gradient(135deg, rgba(115, 171, 255, 0.25) 0%, rgba(93, 149, 232, 0.15) 100%);
+}
+
+/* ===========================
+   Celebration Toast
+   =========================== */
+
+.celebration-toast {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 9999;
+  animation: slideInRight 0.5s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.celebration-content {
+  background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+  color: white;
+  padding: 20px 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(81, 207, 102, 0.4);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  max-width: 400px;
+  position: relative;
+}
+
+.celebration-icon {
+  font-size: 32px;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.celebration-message {
+  flex: 1;
+}
+
+.celebration-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: white;
+}
+
+.celebration-quote {
+  font-size: 14px;
+  line-height: 1.5;
+  font-style: italic;
+  margin: 0 0 8px 0;
+  color: rgba(255, 255, 255, 0.95);
+  border-left: 3px solid rgba(255, 255, 255, 0.4);
+  padding-left: 12px;
+}
+
+.celebration-author {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.celebration-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.celebration-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Dark Mode - Celebration Toast */
+.dark-mode .celebration-content {
+  background: linear-gradient(135deg, #51cf66 0%, #40c057 100%);
+  box-shadow: 0 8px 24px rgba(81, 207, 102, 0.6);
+}
+
+/* ===========================
+   Drag and Drop Styles
+   =========================== */
+
+/* Draggable task styles */
+.unscheduled-task {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.unscheduled-task:active {
+  cursor: grabbing;
+}
+
+.time-block {
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.time-block:active {
+  cursor: grabbing;
+}
+
+/* Drop target highlight */
+.drop-target {
+  background: rgba(115, 171, 255, 0.2) !important;
+  border: 2px dashed #73abff !important;
+  border-radius: 8px;
+}
+
+/* Drag overlay */
+.drag-overlay-task {
+  background: #f8f9fa;
+  border: 2px solid #73abff;
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(115, 171, 255, 0.4);
+  min-width: 280px;
+  cursor: grabbing;
+}
+
+.drag-overlay-task .task-priority-indicator {
+  width: 4px;
+  height: 40px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.drag-overlay-task .task-content {
+  flex: 1;
+}
+
+.drag-overlay-task .task-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111722;
+  margin-bottom: 4px;
+}
+
+.drag-overlay-task .task-category {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(115, 171, 255, 0.15);
+  color: #73abff;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* Update schedule hint */
+.schedule-hint {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(115, 171, 255, 0.1);
+  border-radius: 8px;
+  text-align: center;
+  font-size: 13px;
+  color: #73abff;
+  font-weight: 500;
+}
+
+/* Dark Mode - Drag and Drop */
+.dark-mode .drag-overlay-task {
+  background: rgba(30, 38, 52, 0.95);
+  border-color: #73abff;
+}
+
+.dark-mode .drag-overlay-task .task-text {
+  color: #f5f5f7;
+}
+
+.dark-mode .drop-target {
+  background: rgba(115, 171, 255, 0.15) !important;
+  border-color: #73abff !important;
+}
