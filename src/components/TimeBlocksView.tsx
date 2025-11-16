@@ -149,13 +149,14 @@ function DraggableBlock({ task, getPriorityColor, onUnschedule, onTaskClick, onE
 // Droppable Time Slot Component
 interface DroppableSlotProps {
   hour: number;
+  minute: number;
   children: React.ReactNode;
 }
 
-function DroppableSlot({ hour, children }: DroppableSlotProps) {
+function DroppableSlot({ hour, minute, children }: DroppableSlotProps) {
   const { setNodeRef, isOver } = useDroppable({
-    id: `slot-${hour}`,
-    data: { hour },
+    id: `slot-${hour}-${minute}`,
+    data: { hour, minute },
   });
 
   return (
@@ -192,12 +193,13 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
 
     const draggedTask = active.data.current?.task as Task;
     const targetHour = over.data.current?.hour as number;
+    const targetMinute = over.data.current?.minute as number;
 
-    if (!draggedTask || targetHour === undefined) return;
+    if (!draggedTask || targetHour === undefined || targetMinute === undefined) return;
 
-    // Schedule the task at the target hour by setting dueDate and dueTime
+    // Schedule the task at the target time by setting dueDate and dueTime
     const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
-    const timeStr = `${String(targetHour).padStart(2, '0')}:00`;
+    const timeStr = `${String(targetHour).padStart(2, '0')}:${String(targetMinute).padStart(2, '0')}`;
 
     onUpdateTask(draggedTask.id, {
       dueDate: dateStr,
@@ -229,23 +231,25 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
     return taskDate.toDateString() === selectedDate.toDateString();
   });
 
-  // Generate hourly time slots (8 AM - 8 PM)
+  // Generate 15-minute time slots (8 AM - 8 PM)
   const generateTimeSlots = () => {
     const slots = [];
     for (let hour = 8; hour <= 20; hour++) {
-      let label;
-      if (hour === 12) {
-        label = '12:00 PM'; // Noon
-      } else if (hour > 12) {
-        label = `${hour - 12}:00 PM`;
-      } else {
-        label = `${hour}:00 AM`;
+      for (let minute = 0; minute < 60; minute += 15) {
+        // Skip 8:45 PM and beyond to end at 8:00 PM
+        if (hour === 20 && minute > 0) break;
+
+        const formatHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+        const period = hour >= 12 ? 'PM' : 'AM';
+        const label = `${formatHour}:${String(minute).padStart(2, '0')} ${period}`;
+
+        slots.push({
+          hour,
+          minute,
+          label,
+          time: `${hour}:${String(minute).padStart(2, '0')}`,
+        });
       }
-      slots.push({
-        hour,
-        label,
-        time: `${hour}:00`,
-      });
     }
     return slots;
   };
@@ -356,39 +360,26 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
           <div className="timeline">
             {/* Time slots with blocks rendered inside their starting slot */}
             {timeSlots.map((slot) => {
-              // Get tasks that START in this hour slot
+              // Get tasks that START in this exact 15-minute slot
               const tasksInSlot = scheduledTasks.filter((task) => {
                 if (!task.dueTime) return false;
-                const [hours] = task.dueTime.split(':').map(Number);
-                return hours === slot.hour;
+                const [hours, minutes] = task.dueTime.split(':').map(Number);
+                // Round minutes to nearest 15-minute slot
+                const slotMinute = Math.floor(minutes / 15) * 15;
+                return hours === slot.hour && slotMinute === slot.minute;
               });
 
               return (
-                <div key={slot.hour} className="time-slot">
+                <div key={`${slot.hour}-${slot.minute}`} className="time-slot">
                   <div className="time-label">{slot.label}</div>
-                  <DroppableSlot hour={slot.hour}>
+                  <DroppableSlot hour={slot.hour} minute={slot.minute}>
                     {tasksInSlot.length > 0 ? (
                       <div className="slot-blocks-container">
                         {tasksInSlot.map((task) => {
-                          const [, minutes] = task.dueTime!.split(':').map(Number);
-                          const durationInMinutes = task.scheduledDuration || 60;
-
-                          // Position within slot as percentage (0% = top, 100% = bottom)
-                          const topPercent = (minutes / 60) * 100;
-
-                          // Height: 100% = 1 hour slot
-                          // Use smaller minimum (75%) to prevent overflow for tasks at :15, :30, etc.
-                          const calculatedPercent = (durationInMinutes / 60) * 100;
-                          const heightPercent = Math.max(calculatedPercent, 75);
-
                           return (
                             <div
                               key={task.id}
                               className="slot-block-wrapper"
-                              style={{
-                                top: `${topPercent}%`,
-                                height: `${heightPercent}%`,
-                              }}
                             >
                               <DraggableBlock
                                 task={task}
