@@ -378,8 +378,9 @@ function TimeBlocksView({ tasks, onUpdateTask, onTaskClick }: TimeBlocksViewProp
                           // Position within slot as percentage (0% = top, 100% = bottom)
                           const topPercent = (minutes / 60) * 100;
 
-                          // Height as percentage of slot (100% = 1 hour)
-                          const heightPercent = Math.max((durationInMinutes / 60) * 100, 80);
+                          // Height: slot is 104px total but content area is ~80px
+                          // Scale factor: 104/80 = 1.3 to span full slot heights
+                          const heightPercent = Math.max((durationInMinutes / 60) * 130, 100);
 
                           return (
                             <div
