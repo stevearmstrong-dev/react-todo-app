@@ -7445,6 +7445,7 @@ body {
   gap: 12px;
   overflow-x: auto;
   padding: 10px 8px 12px;
+  scroll-snap-type: x proximity;
 }
 
 .upcoming-nav::-webkit-scrollbar {
@@ -7467,6 +7468,7 @@ body {
   align-items: center;
   gap: 4px;
   min-width: 72px;
+  scroll-snap-align: center;
   transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
@@ -7516,6 +7518,7 @@ body {
   padding: 24px;
   border: 1px solid rgba(115, 171, 255, 0.15);
   box-shadow: 0 12px 30px rgba(14, 63, 126, 0.08);
+  max-width: 720px;
 }
 
 .dark-mode .upcoming-day-panel {
@@ -7604,7 +7607,8 @@ body {
   border-radius: 16px;
   padding: 16px;
   border: 1px solid rgba(115, 171, 255, 0.2);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.12);
+  max-width: 420px;
 }
 
 .dark-mode .upcoming-task-card {
