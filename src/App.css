@@ -7442,8 +7442,19 @@ body {
 
 .upcoming-days {
   display: flex;
-  flex-direction: column;
   gap: 18px;
+  overflow-x: auto;
+  padding-bottom: 12px;
+  scroll-snap-type: x proximity;
+}
+
+.upcoming-days::-webkit-scrollbar {
+  height: 8px;
+}
+
+.upcoming-days::-webkit-scrollbar-thumb {
+  background: rgba(115, 171, 255, 0.4);
+  border-radius: 999px;
 }
 
 .upcoming-day {
@@ -7452,6 +7463,9 @@ body {
   padding: 20px;
   border: 1px solid rgba(115, 171, 255, 0.15);
   box-shadow: 0 10px 30px rgba(14, 63, 126, 0.08);
+  min-width: 320px;
+  scroll-snap-align: start;
+  flex: 0 0 auto;
 }
 
 .dark-mode .upcoming-day {
@@ -7511,6 +7525,18 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.upcoming-day-schedule::-webkit-scrollbar {
+  width: 6px;
+}
+
+.upcoming-day-schedule::-webkit-scrollbar-thumb {
+  background: rgba(115, 171, 255, 0.35);
+  border-radius: 999px;
 }
 
 .upcoming-task {
