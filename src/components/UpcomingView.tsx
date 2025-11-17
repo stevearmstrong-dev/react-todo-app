@@ -142,6 +142,32 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
     }
   }, [visibleDays, selectedDay]);
 
+  React.useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent): void => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      const currentIndex = days.findIndex((day) => day.key === selectedDay);
+      if (currentIndex === -1) return;
+      if (event.key === 'ArrowLeft' && currentIndex > 0) {
+        setSelectedDay(days[currentIndex - 1].key);
+        navRef.current?.scrollBy({ left: -120, behavior: 'smooth' });
+      }
+      if (event.key === 'ArrowRight' && currentIndex < days.length - 1) {
+        setSelectedDay(days[currentIndex + 1].key);
+        navRef.current?.scrollBy({ left: 120, behavior: 'smooth' });
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [days, selectedDay]);
+
+  React.useEffect(() => {
+    if (!navRef.current) return;
+    const active = navRef.current.querySelector<HTMLButtonElement>(`[data-day-key="${selectedDay}"]`);
+    active?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [selectedDay]);
+
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     const value = composerValue.trim();
@@ -200,44 +226,44 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
         </div>
       </div>
 
-      <div className="upcoming-nav-wrapper">
-        <button
-          type="button"
-          className="nav-arrow"
-          onClick={() => {
-            const currentIndex = days.findIndex((day) => day.key === selectedDay);
-            const nextIndex = Math.max(0, currentIndex - 1);
-            setSelectedDay(days[nextIndex].key);
-            navRef.current?.scrollBy({ left: -100, behavior: 'smooth' });
-          }}
-        >
-          ←
-        </button>
-        <div className="upcoming-nav" ref={navRef}>
-          {visibleDays.map((day) => (
-            <NavDayButton
-              key={day.key}
-              day={day}
-              isSelected={day.key === selectedDay}
-              onSelect={() => setSelectedDay(day.key)}
-            />
-          ))}
-        </div>
-        <button
-          type="button"
-          className="nav-arrow"
-          onClick={() => {
-            const currentIndex = days.findIndex((day) => day.key === selectedDay);
-            const nextIndex = Math.min(days.length - 1, currentIndex + 1);
-            setSelectedDay(days[nextIndex].key);
-            navRef.current?.scrollBy({ left: 100, behavior: 'smooth' });
-          }}
-        >
-          →
-        </button>
-      </div>
-
       <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <div className="upcoming-nav-wrapper">
+          <button
+            type="button"
+            className="nav-arrow"
+            onClick={() => {
+              const currentIndex = days.findIndex((day) => day.key === selectedDay);
+              const nextIndex = Math.max(0, currentIndex - 1);
+              setSelectedDay(days[nextIndex].key);
+              navRef.current?.scrollBy({ left: -100, behavior: 'smooth' });
+            }}
+          >
+            ←
+          </button>
+          <div className="upcoming-nav" ref={navRef}>
+            {visibleDays.map((day) => (
+              <NavDayButton
+                key={day.key}
+                day={day}
+                isSelected={day.key === selectedDay}
+                onSelect={() => setSelectedDay(day.key)}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            className="nav-arrow"
+            onClick={() => {
+              const currentIndex = days.findIndex((day) => day.key === selectedDay);
+              const nextIndex = Math.min(days.length - 1, currentIndex + 1);
+              setSelectedDay(days[nextIndex].key);
+              navRef.current?.scrollBy({ left: 100, behavior: 'smooth' });
+            }}
+          >
+            →
+          </button>
+        </div>
+
         <UpcomingDayPanel
           dayKey={selectedDay}
           display={days.find((d) => d.key === selectedDay)?.display || ''}
@@ -272,6 +298,7 @@ const NavDayButton: React.FC<NavDayButtonProps> = ({ day, isSelected, onSelect }
       className={`upcoming-nav-item ${isSelected ? 'selected' : ''} ${isOver ? 'drop' : ''}`}
       onClick={onSelect}
       type="button"
+      data-day-key={day.key}
     >
       <span className="upcoming-nav-weekday">{day.date.toLocaleDateString('en-US', { weekday: 'short' })}</span>
       <span className="upcoming-nav-date">{day.date.getDate()}</span>
