@@ -25,6 +25,7 @@ export interface Task {
   pomodoroActive?: boolean;
   scheduledStart?: string; // ISO timestamp for scheduled start time
   scheduledDuration?: number; // Duration in minutes
+  sortOrder?: number;
 }
 
 export interface TimeData {
@@ -67,5 +68,6 @@ export interface DbTask {
   pomodoro_active: boolean;
   scheduled_start: string | null;
   scheduled_duration: number | null;
+  sort_order: number | null;
   created_at?: string;
 }

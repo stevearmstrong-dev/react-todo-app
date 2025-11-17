@@ -7444,8 +7444,9 @@ body {
   display: flex;
   gap: 18px;
   overflow-x: auto;
-  padding-bottom: 12px;
+  padding: 8px 32px 12px 4px;
   scroll-snap-type: x proximity;
+  scroll-padding: 0 32px;
 }
 
 .upcoming-days::-webkit-scrollbar {
@@ -7466,6 +7467,9 @@ body {
   min-width: 320px;
   scroll-snap-align: start;
   flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
 }
 
 .dark-mode .upcoming-day {
@@ -7519,6 +7523,14 @@ body {
   padding: 18px;
   text-align: center;
   color: #9ca3af;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-mode .upcoming-day-empty {
+  color: #d1d5db;
 }
 
 .upcoming-day-schedule {
@@ -7527,7 +7539,10 @@ body {
   gap: 14px;
   max-height: 420px;
   overflow-y: auto;
-  padding-right: 6px;
+  padding: 10px 8px;
+  border-radius: 16px;
+  border: 1px dashed transparent;
+  background: rgba(115, 171, 255, 0.05);
 }
 
 .upcoming-day-schedule::-webkit-scrollbar {
@@ -7539,11 +7554,24 @@ body {
   border-radius: 999px;
 }
 
+.dark-mode .upcoming-day-schedule {
+  background: rgba(115, 171, 255, 0.08);
+}
+
+.upcoming-day-schedule.drop-highlight {
+  border-color: rgba(115, 171, 255, 0.6);
+}
+
 .upcoming-task {
   display: grid;
   grid-template-columns: 100px 1fr;
   gap: 16px;
   align-items: center;
+  cursor: grab;
+}
+
+.upcoming-task.dragging {
+  opacity: 0.7;
 }
 
 .upcoming-task-time {
@@ -7631,4 +7659,65 @@ body {
 .dark-mode .category-chip,
 .dark-mode .duration-chip {
   background: rgba(255, 255, 255, 0.08);
+}
+
+.upcoming-add-task {
+  margin-top: 14px;
+}
+
+.upcoming-add-link {
+  background: transparent;
+  border: none;
+  color: #1d4ed8;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.dark-mode .upcoming-add-link {
+  color: #93c5fd;
+}
+
+.upcoming-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upcoming-add-form input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(115, 171, 255, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.dark-mode .upcoming-add-form input {
+  background: rgba(17, 23, 34, 0.85);
+  border-color: rgba(115, 171, 255, 0.4);
+  color: #f5f5f7;
+}
+
+.upcoming-add-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.upcoming-add-actions button {
+  flex: 1;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.upcoming-add-actions button[type="submit"] {
+  background: #4c6ef5;
+  color: white;
+}
+
+.upcoming-add-actions button[type="button"] {
+  background: rgba(115, 171, 255, 0.15);
+  color: #1d4ed8;
 }

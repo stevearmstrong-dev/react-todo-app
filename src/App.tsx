@@ -25,6 +25,12 @@ import { User } from '@supabase/supabase-js';
 
 type FilterType = 'all' | 'active' | 'completed';
 type AuthViewType = 'signin' | 'signup' | 'reset';
+type UpcomingDropPayload = {
+  taskId: number;
+  sourceDate: string;
+  targetDate: string;
+  targetIndex: number;
+};
 
 function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -43,6 +49,28 @@ function App() {
   const [focusedTask, setFocusedTask] = useState<Task | null>(null);
   const [celebrationQuote, setCelebrationQuote] = useState<string | null>(null);
   const notifiedTasksRef = useRef<Set<string>>(new Set());
+
+  const normalizeTask = (task: Task): Task => ({
+    ...task,
+    sortOrder: typeof task.sortOrder === 'number' ? task.sortOrder : 0,
+  });
+
+  const parseTasksFromStorage = (raw: string): Task[] => {
+    try {
+      const parsed: Task[] = JSON.parse(raw);
+      return parsed.map(normalizeTask);
+    } catch {
+      return [];
+    }
+  };
+
+  const getNextSortOrder = (dueDate?: string): number => {
+    if (!dueDate) return 0;
+    const sameDayTasks = tasks.filter((task) => task.dueDate === dueDate);
+    if (sameDayTasks.length === 0) return 0;
+    const maxOrder = Math.max(...sameDayTasks.map((task) => task.sortOrder || 0));
+    return Number.isFinite(maxOrder) ? maxOrder + 1 : 0;
+  };
 
   // Request notification permission
   useEffect(() => {
@@ -67,7 +95,7 @@ function App() {
       // Load tasks from localStorage for guest
       const savedTasks = localStorage.getItem('guestTasks');
       if (savedTasks) {
-        setTasks(JSON.parse(savedTasks));
+        setTasks(parseTasksFromStorage(savedTasks));
       }
       return;
     }
@@ -131,7 +159,7 @@ function App() {
       if (userEmail) {
         const dbTasks = await supabaseService.fetchTasks(userEmail);
         const appTasks = dbTasks.map(task => supabaseService.convertToAppFormat(task));
-        setTasks(appTasks);
+        setTasks(appTasks.map(normalizeTask));
       }
     };
 
@@ -249,12 +277,17 @@ function App() {
   };
 
   const addTask = async (taskData: Partial<Task>): Promise<void> => {
+    const resolvedDueDate = taskData.dueDate || '';
+    const resolvedSortOrder = typeof taskData.sortOrder === 'number'
+      ? taskData.sortOrder
+      : getNextSortOrder(resolvedDueDate);
+
     const newTask: Task = {
       id: Date.now(),
       text: capitalizeFirstLetter(taskData.text || ''),
       completed: false,
       priority: taskData.priority || 'medium',
-      dueDate: taskData.dueDate || '',
+      dueDate: resolvedDueDate,
       dueTime: taskData.dueTime || '',
       category: taskData.category || '',
       reminderMinutes: taskData.reminderMinutes || null,
@@ -263,6 +296,7 @@ function App() {
       isTracking: false,
       trackingStartTime: null,
       scheduledDuration: taskData.scheduledDuration,
+      sortOrder: resolvedSortOrder,
     };
 
     // Save to Supabase if user is signed in
@@ -274,7 +308,7 @@ function App() {
       }
     }
 
-    setTasks([newTask, ...tasks]);
+    setTasks((prev) => [normalizeTask(newTask), ...prev]);
   };
 
   const toggleComplete = async (id: number): Promise<void> => {
@@ -381,6 +415,57 @@ function App() {
     );
   };
 
+  const handleUpcomingTaskDrop = async ({ taskId, sourceDate, targetDate, targetIndex }: UpcomingDropPayload): Promise<void> => {
+    if (!targetDate) return;
+
+    const buildOrder = (date: string, excludeMoving: boolean): number[] => {
+      return tasks
+        .filter(task => task.dueDate === date && (!excludeMoving || task.id !== taskId))
+        .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+        .map(task => task.id);
+    };
+
+    const targetOrder = buildOrder(targetDate, true);
+    const insertionIndex = Math.min(Math.max(targetIndex, 0), targetOrder.length);
+    targetOrder.splice(insertionIndex, 0, taskId);
+    const sourceOrder = sourceDate !== targetDate ? buildOrder(sourceDate, true) : [];
+
+    const nextTasks = tasks.map(task => ({ ...task }));
+    const changedTasks: Task[] = [];
+
+    const applyOrder = (date: string, order: number[]) => {
+      order.forEach((id, idx) => {
+        const task = nextTasks.find(t => t.id === id);
+        if (!task) return;
+        if (task.dueDate !== date || task.sortOrder !== idx) {
+          task.dueDate = date;
+          task.sortOrder = idx;
+          changedTasks.push({ ...task });
+        }
+      });
+    };
+
+    applyOrder(targetDate, targetOrder);
+    if (sourceDate !== targetDate) {
+      applyOrder(sourceDate, sourceOrder);
+    }
+
+    if (changedTasks.length === 0) return;
+
+    setTasks(nextTasks);
+
+    if (userEmail) {
+      changedTasks.forEach((task) => {
+        supabaseService.updateTask(task.id, {
+          dueDate: task.dueDate,
+          sortOrder: task.sortOrder,
+        }, userEmail).catch((error) => {
+          console.error('Failed to update task order in Supabase:', error);
+        });
+      });
+    }
+  };
+
   const updateTaskTime = async (id: number, timeData: Partial<Task>): Promise<void> => {
     // If starting tracking, stop all other tasks
     if (timeData.isTracking) {
@@ -481,7 +566,7 @@ function App() {
     // Load any existing guest tasks
     const savedTasks = localStorage.getItem('guestTasks');
     if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
+      setTasks(parseTasksFromStorage(savedTasks));
     }
   };
 
@@ -683,6 +768,8 @@ function App() {
             tasks={tasks}
             onToggleComplete={toggleComplete}
             onDeleteTask={deleteTask}
+            onAddTask={addTask}
+            onTaskDrop={handleUpcomingTaskDrop}
             onFocus={setFocusedTask}
           />
         ) : view === 'pomodoro' ? (

@@ -79,14 +79,15 @@ class SupabaseService {
             calendar_event_id: task.calendarEventId || null,
             time_spent: task.timeSpent || 0,
             is_tracking: task.isTracking || false,
-            tracking_start_time: task.trackingStartTime || null,
-            pomodoro_time: task.pomodoroTime || null,
-            pomodoro_mode: task.pomodoroMode || null,
-            pomodoro_active: task.pomodoroActive || false,
-            scheduled_start: task.scheduledStart || null,
-            scheduled_duration: task.scheduledDuration || null,
-          },
-        ])
+          tracking_start_time: task.trackingStartTime || null,
+          pomodoro_time: task.pomodoroTime || null,
+          pomodoro_mode: task.pomodoroMode || null,
+          pomodoro_active: task.pomodoroActive || false,
+          scheduled_start: task.scheduledStart || null,
+          scheduled_duration: task.scheduledDuration || null,
+          sort_order: typeof task.sortOrder === 'number' ? task.sortOrder : 0,
+        },
+      ])
         .select()
         .single();
 
@@ -127,6 +128,7 @@ class SupabaseService {
           pomodoro_active: updates.pomodoroActive,
           scheduled_start: updates.scheduledStart,
           scheduled_duration: updates.scheduledDuration,
+          sort_order: updates.sortOrder,
         })
         .eq('id', taskId)
         .eq('user_email', userEmail)
@@ -200,6 +202,7 @@ class SupabaseService {
       pomodoroActive: dbTask.pomodoro_active || false,
       scheduledStart: dbTask.scheduled_start || undefined,
       scheduledDuration: dbTask.scheduled_duration || undefined,
+      sortOrder: typeof dbTask.sort_order === 'number' ? dbTask.sort_order : 0,
     };
   }
 
@@ -225,6 +228,7 @@ class SupabaseService {
       pomodoro_active: task.pomodoroActive || false,
       scheduled_start: task.scheduledStart || null,
       scheduled_duration: task.scheduledDuration || null,
+      sort_order: typeof task.sortOrder === 'number' ? task.sortOrder : 0,
     };
   }
 }
