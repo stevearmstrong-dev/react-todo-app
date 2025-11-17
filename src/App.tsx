@@ -22,7 +22,6 @@ import { getQuoteByCategory } from './data/navalQuotes';
 import supabaseService from './services/supabase';
 import { User } from '@supabase/supabase-js';
 import KanbanBoard from './components/KanbanBoard';
-import UpcomingView from './components/UpcomingView';
 
 type FilterType = 'all' | 'active' | 'completed';
 type AuthViewType = 'signin' | 'signup' | 'reset';
@@ -716,17 +715,6 @@ function App() {
               onStatusChange={updateTaskStatus}
               onToggleComplete={toggleComplete}
               onDeleteTask={deleteTask}
-            />
-          </>
-        ) : view === 'upcoming' ? (
-          <>
-            <QuickAddTasks addTask={addTask} />
-            <ToDoForm addTask={addTask} />
-            <UpcomingView
-              tasks={tasks}
-              onToggleComplete={toggleComplete}
-              onDeleteTask={deleteTask}
-              onFocus={setFocusedTask}
             />
           </>
         ) : view === 'pomodoro' ? (
