@@ -409,6 +409,38 @@ function App() {
     );
   };
 
+  const reorderTasksWithinDay = async (dayKey: string, orderedIds: number[]): Promise<void> => {
+    const orderMap = new Map<number, number>();
+    orderedIds.forEach((id, index) => orderMap.set(id, index));
+
+    const changed: Task[] = [];
+    const nextTasks = tasks.map((task) => {
+      if (task.dueDate === dayKey && orderMap.has(task.id)) {
+        const sortOrder = orderMap.get(task.id)!;
+        if ((task.sortOrder || 0) !== sortOrder) {
+          const updated = { ...task, sortOrder };
+          changed.push(updated);
+          return updated;
+        }
+      }
+      return task;
+    });
+
+    if (changed.length === 0) return;
+
+    setTasks(nextTasks);
+
+    if (userEmail) {
+      changed.forEach((task) => {
+        supabaseService.updateTask(task.id, {
+          sortOrder: task.sortOrder,
+        }, userEmail).catch((error) => {
+          console.error('Failed to update task order in Supabase:', error);
+        });
+      });
+    }
+  };
+
   const updateTaskTime = async (id: number, timeData: Partial<Task>): Promise<void> => {
     // If starting tracking, stop all other tasks
     if (timeData.isTracking) {
@@ -713,6 +745,7 @@ function App() {
             onDeleteTask={deleteTask}
             onAddTask={addTask}
             onFocus={setFocusedTask}
+            onReorderDay={reorderTasksWithinDay}
           />
         ) : view === 'pomodoro' ? (
           <PomodoroTimer />

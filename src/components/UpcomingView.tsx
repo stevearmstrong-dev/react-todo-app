@@ -1,4 +1,18 @@
 import React, { useMemo, useState, useEffect, useRef } from 'react';
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { Task } from '../types';
 
 interface UpcomingViewProps {
@@ -7,6 +21,7 @@ interface UpcomingViewProps {
   onDeleteTask: (taskId: number) => void;
   onAddTask: (task: Partial<Task>) => void;
   onFocus?: (task: Task) => void;
+  onReorderDay: (dayKey: string, orderedIds: number[]) => void;
 }
 
 const DAYS_TO_SHOW = 7;
@@ -50,6 +65,7 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
   onDeleteTask,
   onAddTask,
   onFocus,
+  onReorderDay,
 }) => {
   const today = getStartOfDay(new Date());
   const tomorrow = new Date(today);
@@ -70,6 +86,11 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
   const [selectedDay, setSelectedDay] = useState<string>(days[0]?.key || '');
   const [composerValue, setComposerValue] = useState('');
   const navRef = useRef<HTMLDivElement | null>(null);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    })
+  );
 
   const tasksByDay = useMemo(() => {
     const groups: Record<string, Task[]> = {};
@@ -159,81 +180,170 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
         </button>
       </div>
 
-      <div className="upcoming-day-panel">
-        <div className="upcoming-day-title">
-          {days.find((day) => day.key === selectedDay)?.display || ''}
-        </div>
+      <UpcomingDayPanel
+        dayKey={selectedDay}
+        display={days.find((day) => day.key === selectedDay)?.display || ''}
+        tasks={selectedTasks}
+        onToggleComplete={onToggleComplete}
+        onDeleteTask={onDeleteTask}
+        onFocus={onFocus}
+        composerValue={composerValue}
+        onComposerChange={setComposerValue}
+        onAddTask={handleAddTask}
+        sensors={sensors}
+        onReorder={onReorderDay}
+      />
+    </div>
+  );
+};
 
-        <div className="upcoming-day-schedule single">
-          {selectedTasks.length === 0 ? (
-            <div className="upcoming-day-empty">
-              <p>No tasks scheduled</p>
-            </div>
-          ) : (
-            selectedTasks.map((task) => (
-              <div className="upcoming-task" key={task.id}>
-                <div className="upcoming-task-time">{formatTime(task)}</div>
-                <div className="upcoming-task-card">
-                  <div className="upcoming-task-header">
-                    <span className="upcoming-task-title">{task.text}</span>
-                    <div className="upcoming-task-actions">
-                      {onFocus && !task.completed && (
-                        <button
-                          className="upcoming-task-btn"
-                          onClick={() => onFocus(task)}
-                          title="Focus mode"
-                          type="button"
-                        >
-                          🎯
-                        </button>
-                      )}
-                      <button
-                        className="upcoming-task-btn"
-                        onClick={() => onToggleComplete(task.id)}
-                        title={task.completed ? 'Mark incomplete' : 'Mark complete'}
-                        type="button"
-                      >
-                        {task.completed ? '↺' : '✓'}
-                      </button>
-                      <button
-                        className="upcoming-task-btn danger"
-                        onClick={() => onDeleteTask(task.id)}
-                        title="Delete"
-                        type="button"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                  <div className="upcoming-task-meta">
-                    <span className={`priority-chip priority-${task.priority}`}>
-                      {task.priority.toUpperCase()}
-                    </span>
-                    {task.category && <span className="category-chip">{task.category}</span>}
-                    {task.scheduledDuration && (
-                      <span className="duration-chip">{task.scheduledDuration} min</span>
-                    )}
-                  </div>
-                </div>
+interface UpcomingDayPanelProps {
+  dayKey: string;
+  display: string;
+  tasks: Task[];
+  composerValue: string;
+  onComposerChange: (value: string) => void;
+  onAddTask: (event: React.FormEvent<HTMLFormElement>) => void;
+  onToggleComplete: (taskId: number) => void;
+  onDeleteTask: (taskId: number) => void;
+  sensors: ReturnType<typeof useSensors>;
+  onReorder: (dayKey: string, order: number[]) => void;
+  onFocus?: (task: Task) => void;
+}
+
+const UpcomingDayPanel: React.FC<UpcomingDayPanelProps> = ({
+  dayKey,
+  display,
+  tasks,
+  composerValue,
+  onComposerChange,
+  onAddTask,
+  onToggleComplete,
+  onDeleteTask,
+  sensors,
+  onReorder,
+  onFocus,
+}) => {
+  const items = tasks.map((task) => `task-${task.id}`);
+
+  const handleDragEnd = (event: DragEndEvent): void => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.indexOf(active.id as string);
+    const newIndex = items.indexOf(over.id as string);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const newOrder = arrayMove(items, oldIndex, newIndex).map((id) => Number(id.replace('task-', '')));
+    onReorder(dayKey, newOrder);
+  };
+
+  return (
+    <div className="upcoming-day-panel">
+      <div className="upcoming-day-title">{display}</div>
+
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <SortableContext items={items} strategy={verticalListSortingStrategy}>
+          <div className="upcoming-day-schedule single">
+            {tasks.length === 0 ? (
+              <div className="upcoming-day-empty">
+                <p>No tasks scheduled</p>
               </div>
-            ))
-          )}
-        </div>
+            ) : (
+              tasks.map((task) => (
+                <SortableTaskRow
+                  key={task.id}
+                  task={task}
+                  onToggleComplete={onToggleComplete}
+                  onDeleteTask={onDeleteTask}
+                  onFocus={onFocus}
+                />
+              ))
+            )}
+          </div>
+        </SortableContext>
+      </DndContext>
 
-        <form className="upcoming-add-form" onSubmit={handleAddTask}>
-          <input
-            type="text"
-            placeholder="Add task"
-            value={composerValue}
-            onChange={(event) => setComposerValue(event.target.value)}
-          />
-          <div className="upcoming-add-actions">
-            <button type="submit">Add</button>
-            <button type="button" onClick={() => setComposerValue('')}>
-              Clear
+      <form className="upcoming-add-form" onSubmit={onAddTask}>
+        <input
+          type="text"
+          placeholder="Add task"
+          value={composerValue}
+          onChange={(event) => onComposerChange(event.target.value)}
+        />
+        <div className="upcoming-add-actions">
+          <button type="submit">Add</button>
+          <button type="button" onClick={() => onComposerChange('')}>
+            Clear
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+interface SortableTaskRowProps {
+  task: Task;
+  onToggleComplete: (taskId: number) => void;
+  onDeleteTask: (taskId: number) => void;
+  onFocus?: (task: Task) => void;
+}
+
+const SortableTaskRow: React.FC<SortableTaskRowProps> = ({
+  task,
+  onToggleComplete,
+  onDeleteTask,
+  onFocus,
+}) => {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: `task-${task.id}`,
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div className="upcoming-task" ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div className="upcoming-task-time">{formatTime(task)}</div>
+      <div className="upcoming-task-card">
+        <div className="upcoming-task-header">
+          <span className="upcoming-task-title">{task.text}</span>
+          <div className="upcoming-task-actions">
+            {onFocus && !task.completed && (
+              <button
+                className="upcoming-task-btn"
+                onClick={() => onFocus(task)}
+                title="Focus mode"
+                type="button"
+              >
+                🎯
+              </button>
+            )}
+            <button
+              className="upcoming-task-btn"
+              onClick={() => onToggleComplete(task.id)}
+              title={task.completed ? 'Mark incomplete' : 'Mark complete'}
+              type="button"
+            >
+              {task.completed ? '↺' : '✓'}
+            </button>
+            <button
+              className="upcoming-task-btn danger"
+              onClick={() => onDeleteTask(task.id)}
+              title="Delete"
+              type="button"
+            >
+              ✕
             </button>
           </div>
-        </form>
+        </div>
+        <div className="upcoming-task-meta">
+          <span className={`priority-chip priority-${task.priority}`}>
+            {task.priority.toUpperCase()}
+          </span>
+          {task.category && <span className="category-chip">{task.category}</span>}
+          {task.scheduledDuration && <span className="duration-chip">{task.scheduledDuration} min</span>}
+        </div>
       </div>
     </div>
   );
