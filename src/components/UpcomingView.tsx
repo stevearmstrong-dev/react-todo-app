@@ -30,8 +30,7 @@ interface UpcomingViewProps {
   onFocus?: (task: Task) => void;
 }
 
-const DAYS_TO_SHOW = 14;
-const COLLAPSED_DAYS = 7;
+const DAYS_TO_SHOW = 7;
 
 const getStartOfDay = (date: Date): Date =>
   new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -109,7 +108,6 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
 
   const [selectedDay, setSelectedDay] = useState<string>(days[0]?.key || '');
   const [composerValue, setComposerValue] = useState('');
-  const [showAllDays, setShowAllDays] = useState(false);
   const navRef = React.useRef<HTMLDivElement | null>(null);
 
   const tasksByDay = useMemo(() => {
@@ -133,8 +131,7 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
     return groups;
   }, [tasks, tomorrow]);
 
-  const visibleDays = showAllDays ? days : days.slice(0, COLLAPSED_DAYS);
-  const hasExtraDays = days.length > COLLAPSED_DAYS;
+  const visibleDays = days;
 
   const selectedTasks = tasksByDay[selectedDay] || [];
 
@@ -226,22 +223,6 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
             />
           ))}
         </div>
-        {hasExtraDays && (
-          <button
-            type="button"
-            className="upcoming-nav-toggle"
-            onClick={() => {
-              if (showAllDays) {
-                setShowAllDays(false);
-                setSelectedDay(days[0].key);
-              } else {
-                setShowAllDays(true);
-              }
-            }}
-          >
-            {showAllDays ? 'Collapse' : `Show next ${days.length - COLLAPSED_DAYS} days`}
-          </button>
-        )}
         <button
           type="button"
           className="nav-arrow"

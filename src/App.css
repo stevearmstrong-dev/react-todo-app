@@ -7453,7 +7453,6 @@ body {
   overflow-x: auto;
   padding: 10px 8px 12px;
   scroll-snap-type: x proximity;
-  mask-image: linear-gradient(to right, transparent, black 24px, black calc(100% - 24px), transparent);
 }
 
 .upcoming-nav::-webkit-scrollbar {
@@ -7774,32 +7773,6 @@ body {
 .dark-mode .upcoming-add-actions button[type="button"] {
   background: rgba(115, 171, 255, 0.25);
   color: #dbeafe;
-}
-.upcoming-nav::before,
-.upcoming-nav::after {
-  content: '';
-  position: sticky;
-  top: 0;
-  width: 24px;
-  pointer-events: none;
-}
-
-.upcoming-nav::before {
-  left: 0;
-  background: linear-gradient(to right, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
-}
-
-.upcoming-nav::after {
-  right: 0;
-  background: linear-gradient(to left, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
-}
-
-.dark-mode .upcoming-nav::before {
-  background: linear-gradient(to right, rgba(17, 23, 34, 1), rgba(17, 23, 34, 0));
-}
-
-.dark-mode .upcoming-nav::after {
-  background: linear-gradient(to left, rgba(17, 23, 34, 1), rgba(17, 23, 34, 0));
 }
 .nav-arrow {
   border: none;
