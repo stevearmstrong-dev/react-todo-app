@@ -4,7 +4,7 @@ export type Priority = 'high' | 'medium' | 'low';
 
 export type Recurrence = 'daily' | 'weekly' | 'biweekly' | 'monthly' | 'yearly' | null;
 
-export type ViewType = 'today' | 'tasks' | 'dashboard' | 'matrix' | 'pomodoro' | 'timeblocks';
+export type ViewType = 'today' | 'tasks' | 'dashboard' | 'matrix' | 'pomodoro' | 'timeblocks' | 'upcoming';
 
 export interface Task {
   id: number;

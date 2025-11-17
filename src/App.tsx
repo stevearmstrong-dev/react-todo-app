@@ -5,6 +5,7 @@ import ToDoForm from './components/ToDoForm';
 import ToDo from './components/ToDo';
 import Dashboard from './components/Dashboard';
 import TodayView from './components/TodayView';
+import UpcomingView from './components/UpcomingView';
 import Onboarding from './components/Onboarding';
 import Greeting from './components/Greeting';
 import SignIn from './components/Auth/SignIn';
@@ -676,6 +677,17 @@ function App() {
                 )}
               </div>
             )}
+          </>
+        ) : view === 'upcoming' ? (
+          <>
+            <QuickAddTasks addTask={addTask} />
+            <ToDoForm addTask={addTask} />
+            <UpcomingView
+              tasks={tasks}
+              onToggleComplete={toggleComplete}
+              onDeleteTask={deleteTask}
+              onFocus={setFocusedTask}
+            />
           </>
         ) : view === 'pomodoro' ? (
           <PomodoroTimer />
