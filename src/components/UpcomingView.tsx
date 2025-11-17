@@ -8,6 +8,8 @@ import {
   DragEndEvent,
   UniqueIdentifier,
   closestCorners,
+  DragStartEvent,
+  DragOverlay,
 } from '@dnd-kit/core';
 import { useDroppable } from '@dnd-kit/core';
 import {
@@ -110,6 +112,7 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
   const [selectedDay, setSelectedDay] = useState<string>(days[0]?.key || '');
   const [composerValue, setComposerValue] = useState('');
   const navRef = React.useRef<HTMLDivElement | null>(null);
+  const [activeDragTask, setActiveDragTask] = useState<Task | null>(null);
 
   const tasksByDay = useMemo(() => {
     const groups: Record<string, Task[]> = {};
@@ -163,7 +166,7 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [days, selectedDay]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!navRef.current) return;
     const active = navRef.current.querySelector<HTMLButtonElement>(`[data-day-key="${selectedDay}"]`);
     active?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
@@ -180,6 +183,15 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
       sortOrder,
     });
     setComposerValue('');
+  };
+
+  const handleDragStart = (event: DragStartEvent): void => {
+    const taskId = event.active.data.current?.taskId as number | undefined;
+    if (!taskId) return;
+    const task = tasks.find((t) => t.id === taskId);
+    if (task) {
+      setActiveDragTask(task);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent): void => {
@@ -216,6 +228,8 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
       targetDate: targetDay,
       targetIndex: targetIndex ?? 0,
     });
+
+    setActiveDragTask(null);
   };
 
   return (
@@ -227,7 +241,13 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
         </div>
       </div>
 
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
+      <DndContext
+        sensors={sensors}
+        onDragEnd={handleDragEnd}
+        onDragStart={handleDragStart}
+        onDragCancel={() => setActiveDragTask(null)}
+        collisionDetection={closestCorners}
+      >
         <div className="upcoming-nav-wrapper">
           <button
             type="button"
@@ -278,6 +298,18 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
           onDeleteTask={onDeleteTask}
           onFocus={onFocus}
         />
+        <DragOverlay>
+          {activeDragTask ? (
+            <div className="upcoming-task overlay">
+              <TaskCard
+                task={activeDragTask}
+                onFocus={onFocus}
+                onDelete={onDeleteTask}
+                onToggle={onToggleComplete}
+              />
+            </div>
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   );
@@ -416,6 +448,20 @@ const SortableTaskRow: React.FC<SortableTaskRowProps> = ({
       {...attributes}
       {...listeners}
     >
+      <TaskCard task={task} onFocus={onFocus} onDelete={onDeleteTask} onToggle={onToggleComplete} />
+    </div>
+  );
+};
+
+const TaskCard: React.FC<{
+  task: Task;
+  onFocus?: (task: Task) => void;
+  onDelete: (taskId: number) => void;
+  onToggle: (taskId: number) => void;
+  fromOverlay?: boolean;
+}> = ({ task, onFocus, onDelete, onToggle }) => {
+  return (
+    <>
       <div className="upcoming-task-time">{deriveDisplayTime(task)}</div>
       <div className="upcoming-task-card">
         <div className="upcoming-task-header">
@@ -433,7 +479,7 @@ const SortableTaskRow: React.FC<SortableTaskRowProps> = ({
             )}
             <button
               className="upcoming-task-btn"
-              onClick={() => onToggleComplete(task.id)}
+              onClick={() => onToggle(task.id)}
               title={task.completed ? 'Mark incomplete' : 'Mark complete'}
               type="button"
             >
@@ -441,7 +487,7 @@ const SortableTaskRow: React.FC<SortableTaskRowProps> = ({
             </button>
             <button
               className="upcoming-task-btn danger"
-              onClick={() => onDeleteTask(task.id)}
+              onClick={() => onDelete(task.id)}
               title="Delete"
               type="button"
             >
@@ -457,7 +503,7 @@ const SortableTaskRow: React.FC<SortableTaskRowProps> = ({
           {task.scheduledDuration && <span className="duration-chip">{task.scheduledDuration} min</span>}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

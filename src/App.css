@@ -7626,6 +7626,10 @@ body {
   opacity: 0.7;
 }
 
+.upcoming-task.overlay {
+  pointer-events: none;
+}
+
 .upcoming-task-time {
   text-align: right;
   font-weight: 600;
