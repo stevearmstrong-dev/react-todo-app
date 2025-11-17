@@ -217,7 +217,14 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
           <button
             type="button"
             className="upcoming-nav-toggle"
-            onClick={() => setShowAllDays(!showAllDays)}
+            onClick={() => {
+              if (showAllDays) {
+                setShowAllDays(false);
+                setSelectedDay(days[0].key);
+              } else {
+                setShowAllDays(true);
+              }
+            }}
           >
             {showAllDays ? 'Collapse' : `Show next ${days.length - COLLAPSED_DAYS} days`}
           </button>
