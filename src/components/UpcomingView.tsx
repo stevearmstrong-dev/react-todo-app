@@ -309,6 +309,7 @@ const UpcomingView: React.FC<UpcomingViewProps> = ({
                 onFocus={onFocus}
                 onDelete={onDeleteTask}
                 onToggle={onToggleComplete}
+                hideTime
               />
             </div>
           ) : null}
@@ -461,11 +462,11 @@ const TaskCard: React.FC<{
   onFocus?: (task: Task) => void;
   onDelete: (taskId: number) => void;
   onToggle: (taskId: number) => void;
-  fromOverlay?: boolean;
-}> = ({ task, onFocus, onDelete, onToggle }) => {
+  hideTime?: boolean;
+}> = ({ task, onFocus, onDelete, onToggle, hideTime }) => {
   return (
     <>
-      <div className="upcoming-task-time">{deriveDisplayTime(task)}</div>
+      {!hideTime && <div className="upcoming-task-time">{deriveDisplayTime(task)}</div>}
       <div className="upcoming-task-card">
         <div className="upcoming-task-header">
           <span className="upcoming-task-title">{task.text}</span>

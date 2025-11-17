@@ -7628,6 +7628,7 @@ body {
 
 .upcoming-task.overlay {
   pointer-events: none;
+  grid-template-columns: 1fr;
 }
 
 .upcoming-task-time {
