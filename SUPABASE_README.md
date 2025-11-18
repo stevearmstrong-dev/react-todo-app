@@ -27,6 +27,7 @@ The `tasks` table stores all user tasks with the following structure:
 | `category` | text | Task category |
 | `reminder_minutes` | integer | Minutes before due time to remind |
 | `calendar_event_id` | text | Google Calendar event ID (if synced) |
+| `sort_order` | integer | Manual ordering index for day-level scheduling |
 | `created_at` | timestamp | Task creation timestamp |
 
 ### Row Level Security (RLS)

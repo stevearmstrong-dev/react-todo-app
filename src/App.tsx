@@ -5,6 +5,7 @@ import ToDoForm from './components/ToDoForm';
 import ToDo from './components/ToDo';
 import Dashboard from './components/Dashboard';
 import TodayView from './components/TodayView';
+import UpcomingView from './components/UpcomingView';
 import Onboarding from './components/Onboarding';
 import Greeting from './components/Greeting';
 import SignIn from './components/Auth/SignIn';
@@ -43,6 +44,28 @@ function App() {
   const [celebrationQuote, setCelebrationQuote] = useState<string | null>(null);
   const notifiedTasksRef = useRef<Set<string>>(new Set());
 
+  const normalizeTask = (task: Task): Task => ({
+    ...task,
+    sortOrder: typeof task.sortOrder === 'number' ? task.sortOrder : 0,
+  });
+
+  const parseTasksFromStorage = (raw: string): Task[] => {
+    try {
+      const parsed: Task[] = JSON.parse(raw);
+      return parsed.map(normalizeTask);
+    } catch {
+      return [];
+    }
+  };
+
+  const getNextSortOrder = (dueDate?: string): number => {
+    if (!dueDate) return 0;
+    const sameDayTasks = tasks.filter((task) => task.dueDate === dueDate);
+    if (sameDayTasks.length === 0) return 0;
+    const maxOrder = Math.max(...sameDayTasks.map((task) => task.sortOrder || 0));
+    return Number.isFinite(maxOrder) ? maxOrder + 1 : 0;
+  };
+
   // Request notification permission
   useEffect(() => {
     if ('Notification' in window) {
@@ -66,7 +89,7 @@ function App() {
       // Load tasks from localStorage for guest
       const savedTasks = localStorage.getItem('guestTasks');
       if (savedTasks) {
-        setTasks(JSON.parse(savedTasks));
+        setTasks(parseTasksFromStorage(savedTasks));
       }
       return;
     }
@@ -130,7 +153,7 @@ function App() {
       if (userEmail) {
         const dbTasks = await supabaseService.fetchTasks(userEmail);
         const appTasks = dbTasks.map(task => supabaseService.convertToAppFormat(task));
-        setTasks(appTasks);
+        setTasks(appTasks.map(normalizeTask));
       }
     };
 
@@ -248,12 +271,17 @@ function App() {
   };
 
   const addTask = async (taskData: Partial<Task>): Promise<void> => {
+    const resolvedDueDate = taskData.dueDate || '';
+    const resolvedSortOrder = typeof taskData.sortOrder === 'number'
+      ? taskData.sortOrder
+      : getNextSortOrder(resolvedDueDate);
+
     const newTask: Task = {
       id: Date.now(),
       text: capitalizeFirstLetter(taskData.text || ''),
       completed: false,
       priority: taskData.priority || 'medium',
-      dueDate: taskData.dueDate || '',
+      dueDate: resolvedDueDate,
       dueTime: taskData.dueTime || '',
       category: taskData.category || '',
       reminderMinutes: taskData.reminderMinutes || null,
@@ -262,6 +290,7 @@ function App() {
       isTracking: false,
       trackingStartTime: null,
       scheduledDuration: taskData.scheduledDuration,
+      sortOrder: resolvedSortOrder,
     };
 
     // Save to Supabase if user is signed in
@@ -273,7 +302,7 @@ function App() {
       }
     }
 
-    setTasks([newTask, ...tasks]);
+    setTasks((prev) => [normalizeTask(newTask), ...prev]);
   };
 
   const toggleComplete = async (id: number): Promise<void> => {
@@ -380,6 +409,38 @@ function App() {
     );
   };
 
+  const reorderTasksWithinDay = async (dayKey: string, orderedIds: number[]): Promise<void> => {
+    const orderMap = new Map<number, number>();
+    orderedIds.forEach((id, index) => orderMap.set(id, index));
+
+    const changed: Task[] = [];
+    const nextTasks = tasks.map((task) => {
+      if (task.dueDate === dayKey && orderMap.has(task.id)) {
+        const sortOrder = orderMap.get(task.id)!;
+        if ((task.sortOrder || 0) !== sortOrder) {
+          const updated = { ...task, sortOrder };
+          changed.push(updated);
+          return updated;
+        }
+      }
+      return task;
+    });
+
+    if (changed.length === 0) return;
+
+    setTasks(nextTasks);
+
+    if (userEmail) {
+      changed.forEach((task) => {
+        supabaseService.updateTask(task.id, {
+          sortOrder: task.sortOrder,
+        }, userEmail).catch((error) => {
+          console.error('Failed to update task order in Supabase:', error);
+        });
+      });
+    }
+  };
+
   const updateTaskTime = async (id: number, timeData: Partial<Task>): Promise<void> => {
     // If starting tracking, stop all other tasks
     if (timeData.isTracking) {
@@ -480,7 +541,7 @@ function App() {
     // Load any existing guest tasks
     const savedTasks = localStorage.getItem('guestTasks');
     if (savedTasks) {
-      setTasks(JSON.parse(savedTasks));
+      setTasks(parseTasksFromStorage(savedTasks));
     }
   };
 
@@ -677,6 +738,16 @@ function App() {
               </div>
             )}
           </>
+        ) : view === 'upcoming' ? (
+          <UpcomingView
+            tasks={tasks}
+            onToggleComplete={toggleComplete}
+            onDeleteTask={deleteTask}
+            onAddTask={addTask}
+            onUpdateTask={editTask}
+            onFocus={setFocusedTask}
+            onReorderDay={reorderTasksWithinDay}
+          />
         ) : view === 'pomodoro' ? (
           <PomodoroTimer />
         ) : view === 'matrix' ? (
