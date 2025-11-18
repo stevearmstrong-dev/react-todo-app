@@ -744,6 +744,7 @@ function App() {
             onToggleComplete={toggleComplete}
             onDeleteTask={deleteTask}
             onAddTask={addTask}
+            onUpdateTask={editTask}
             onFocus={setFocusedTask}
             onReorderDay={reorderTasksWithinDay}
           />
